@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Cocktail } from '../types';
-import { Wine, Edit, ImageOff } from 'lucide-react';
+import { Wine, Edit, ImageOff, Pencil } from 'lucide-react';
 import { useAppStore } from '../store';
 import { useNavigate } from 'react-router-dom';
 
@@ -33,18 +33,14 @@ const CocktailCard: React.FC<Props> = ({ cocktail }) => {
 
   const handleImageError = () => {
       // 1. Calculate the expected local filename
-      // Logic: lowercase, replace spaces with dashes, keep special chars or simplify depending on file system preference.
-      // Here we assume a simple slug: "Pina Colada" -> "pina-colada.jpg" handling basic latin chars
       const normalize = (str: string) => str.normalize("NFD").replace(/[\u0300-\u036f]/g, ""); // remove accents
       const filename = normalize(cocktail.name).toLowerCase().trim().replace(/[^a-z0-9]/g, '-');
       const fallbackPath = `/images/${filename}.jpg`;
 
       // 2. If we haven't tried the fallback yet, try it
       if (imgSrc !== fallbackPath) {
-          // console.log(`Remote failed. Trying local: ${fallbackPath}`);
           setImgSrc(fallbackPath);
       } else {
-          // 3. If fallback also fails, show error placeholder
           setImageError(true);
       }
   };
@@ -85,21 +81,23 @@ const CocktailCard: React.FC<Props> = ({ cocktail }) => {
             </div>
           )}
 
+          {/* Edit Button for Admin */}
+          {isAdmin && (
+            <button 
+                onClick={handleEdit}
+                className="absolute top-4 left-4 z-40 p-2.5 bg-brand-orange text-white rounded-full shadow-lg hover:scale-110 transition-transform border border-white/20"
+                title="Edit Cocktail"
+            >
+                <Pencil size={16} />
+            </button>
+          )}
+
           {/* Title on Image */}
           <div className="absolute bottom-4 left-4 right-4 text-white z-30">
               <div className="flex justify-between items-end">
                   <h3 className="text-2xl font-bold tracking-tight text-shadow-sm">
                       {cocktail.name}
                   </h3>
-                   {isAdmin && (
-                    <button 
-                        onClick={handleEdit}
-                        className="bg-white/20 hover:bg-white/40 backdrop-blur-sm p-2 rounded-full text-white transition-colors"
-                        title="Edit"
-                    >
-                        <Edit size={16} />
-                    </button>
-                )}
               </div>
               <p className="text-white/80 text-sm font-medium mt-1">{cocktail.category}</p>
           </div>

@@ -1,5 +1,5 @@
 
-import { Cocktail, TheorySection, Language, SiteConfig } from './types';
+import { Cocktail, TheorySection, Language, SiteConfig, Certificate, ShareLink } from './types';
 
 // --- IMAGES (High Quality Unsplash IDs) ---
 const IMG = {
@@ -44,16 +44,37 @@ const IMG = {
   COGNAC: 'https://images.unsplash.com/photo-1628173420803-a1789c836968?auto=format&fit=crop&w=1200&q=80',
 };
 
-// Initial Site Config
-const defaultSiteConfig: SiteConfig = {
+// Site Config - Italian
+const siteConfig_IT: SiteConfig = {
   homeHeroImage: 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=1920&q=80',
   homeTitle: 'Bartender',
   homeSubtitle: 'L\'eccellenza nella formazione per bartender. Un percorso completo dalla merceologia alla mixology avanzata.',
-  homeQuote: 'Il bar non è solo un luogo, è un palcoscenico. Ogni cocktail è una storia, ogni cliente un ospite d\'onore.'
+  homeQuote: 'Il bar non è solo un luogo, è un palcoscenico. Ogni cocktail è una storia, ogni cliente un ospite d\'onore.',
+  theoryHeroImage: 'https://images.unsplash.com/photo-1516975080664-ed2fc6a32937?auto=format&fit=crop&w=2000&q=80',
+  theoryTitle: 'Manuale Operativo',
+  theorySubtitle: 'Linee guida tecniche, setup della station e standard di servizio professionali.',
+  distillatesHeroImage: 'https://images.unsplash.com/photo-1470337458703-46ad1756a187?auto=format&fit=crop&w=2000&q=80',
+  distillatesTitle: 'Distillati & Liquori',
+  distillatesSubtitle: 'Esplora le origini, i metodi di produzione e le caratteristiche dei migliori spiriti del mondo.'
+};
+
+// Site Config - English
+const siteConfig_EN: SiteConfig = {
+  homeHeroImage: 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=1920&q=80',
+  homeTitle: 'Bartender',
+  homeSubtitle: 'Excellence in bartender training. A complete journey from product knowledge to advanced mixology.',
+  homeQuote: 'The bar is not just a place, it is a stage. Every cocktail is a story, every customer a guest of honor.',
+  theoryHeroImage: 'https://images.unsplash.com/photo-1516975080664-ed2fc6a32937?auto=format&fit=crop&w=2000&q=80',
+  theoryTitle: 'Operations Manual',
+  theorySubtitle: 'Technical guidelines, station setup, and professional service standards.',
+  distillatesHeroImage: 'https://images.unsplash.com/photo-1470337458703-46ad1756a187?auto=format&fit=crop&w=2000&q=80',
+  distillatesTitle: 'Spirits & Liqueurs',
+  distillatesSubtitle: 'Explore the origins, production methods, and characteristics of the world\'s finest spirits.'
 };
 
 // ITALIAN DATA
 const theory_IT: TheorySection[] = [
+    // ... existing theory items
   {
     id: 't1', category: 'Basics', title: 'Speed Rack & Setup', status: 'published',
     image: IMG.SETUP,
@@ -198,7 +219,7 @@ Disposizione standard per l'efficienza lavorativa (da destra a sinistra per i de
 ];
 
 const cocktails_IT: Cocktail[] = [
-  // ... (previous cocktails kept same)
+    // ... existing cocktails
   {
     id: 'c101', name: 'Alexander', method: 'Shake & Strain', glass: 'Coppa Martini', category: 'After Dinner', era: 'Vintage', status: 'published',
     image: IMG.ALEXANDER, garnish: 'Noce Moscata grattugiata',
@@ -257,10 +278,8 @@ const cocktails_IT: Cocktail[] = [
   {
     id: 'c112', name: 'White Lady', method: 'Shake & Strain', glass: 'Coppa Martini', category: 'All Day', era: 'Vintage', status: 'published',
     image: IMG.WHITE_LADY, garnish: 'Twist di Limone',
-    ingredients: [{ name: 'Gin', amount: '1 ½ oz' }, { name: 'Triple Sec', amount: '1 oz' }, { name: 'Succo di Limone', amount: '¾ oz' }]
+    ingredients: [{ name: 'Gin', amount: '1 ½ oz' }, { name: 'Triple Sec', amount: '1 oz' }, { name: 'Lemon Juice', amount: '¾ oz' }]
   },
-
-  // --- CONTEMPORARY CLASSICS ---
   {
     id: 'c201', name: 'Black Russian', method: 'Build', glass: 'Old Fashioned', category: 'After Dinner', era: 'Classic', status: 'published',
     image: IMG.BLACK_RUSSIAN, garnish: 'Nessuna',
@@ -311,8 +330,6 @@ const cocktails_IT: Cocktail[] = [
     image: IMG.PINA_COLADA, garnish: 'Fetta di Ananas e Ciliegia',
     ingredients: [{ name: 'Rum Bianco', amount: '1 ½ oz' }, { name: 'Succo di Ananas', amount: '3 oz' }, { name: 'Crema di Cocco', amount: '1 oz' }]
   },
-
-  // --- NEW ERA ---
   {
     id: 'c301', name: 'Aperol Spritz', method: 'Build', glass: 'Calice Vino', category: 'Pre Dinner', era: 'Modern', status: 'published',
     image: IMG.SPRITZ, garnish: 'Fetta d\'Arancia',
@@ -332,6 +349,7 @@ const cocktails_IT: Cocktail[] = [
 
 // ENGLISH DATA
 const theory_EN: TheorySection[] = [
+    // ... existing theory items
   {
     id: 't1', category: 'Basics', title: 'Speed Rack & Setup', status: 'published',
     image: IMG.SETUP,
@@ -475,7 +493,7 @@ Standard arrangement for workflow efficiency (Right to Left for right-handed):
 ];
 
 const cocktails_EN: Cocktail[] = [
-  // ... (previous cocktails kept same)
+    // ... existing cocktails
   {
     id: 'c101', name: 'Alexander', method: 'Shake & Strain', glass: 'Martini Glass', category: 'After Dinner', era: 'Vintage', status: 'published',
     image: IMG.ALEXANDER, garnish: 'Grated Nutmeg',
@@ -536,15 +554,13 @@ const cocktails_EN: Cocktail[] = [
     image: IMG.WHITE_LADY, garnish: 'Lemon Twist',
     ingredients: [{ name: 'Gin', amount: '1 ½ oz' }, { name: 'Triple Sec', amount: '1 oz' }, { name: 'Lemon Juice', amount: '¾ oz' }]
   },
-
-  // --- CONTEMPORARY CLASSICS ---
   {
     id: 'c201', name: 'Black Russian', method: 'Build', glass: 'Old Fashioned', category: 'After Dinner', era: 'Classic', status: 'published',
     image: IMG.BLACK_RUSSIAN, garnish: 'None',
     ingredients: [{ name: 'Vodka', amount: '1 ½ oz' }, { name: 'Coffee Liqueur (Kahlúa)', amount: '¾ oz' }]
   },
   {
-    id: 'c202', name: 'Bloody Mary', method: 'Throwing or Build', glass: 'Highball', category: 'Long Drink', era: 'Classic', status: 'published',
+    id: 'c202', name: 'Bloody Mary', method: 'Throwing o Build', glass: 'Highball', category: 'Long Drink', era: 'Classic', status: 'published',
     image: IMG.BLOODY_MARY, garnish: 'Celery, Lemon',
     ingredients: [{ name: 'Vodka', amount: '1 ½ oz' }, { name: 'Tomato Juice', amount: '3 oz' }, { name: 'Lemon Juice', amount: '½ oz' }, { name: 'Worcestershire', amount: '2 dash' }, { name: 'Tabasco', amount: 'to taste' }, { name: 'Salt & Pepper', amount: 'to taste' }]
   },
@@ -588,8 +604,6 @@ const cocktails_EN: Cocktail[] = [
     image: IMG.PINA_COLADA, garnish: 'Pineapple Slice and Cherry',
     ingredients: [{ name: 'White Rum', amount: '1 ½ oz' }, { name: 'Pineapple Juice', amount: '3 oz' }, { name: 'Coconut Cream', amount: '1 oz' }]
   },
-
-  // --- NEW ERA ---
   {
     id: 'c301', name: 'Aperol Spritz', method: 'Build', glass: 'Wine Glass', category: 'Pre Dinner', era: 'Modern', status: 'published',
     image: IMG.SPRITZ, garnish: 'Orange Slice',
@@ -609,6 +623,6 @@ const cocktails_EN: Cocktail[] = [
 
 export const getInitialData = (lang: Language) => {
   return lang === 'it' 
-    ? { cocktails: cocktails_IT, theory: theory_IT, siteConfig: defaultSiteConfig }
-    : { cocktails: cocktails_EN, theory: theory_EN, siteConfig: defaultSiteConfig };
+    ? { cocktails: cocktails_IT, theory: theory_IT, siteConfig: siteConfig_IT, certificates: [], sharedLinks: [] }
+    : { cocktails: cocktails_EN, theory: theory_EN, siteConfig: siteConfig_EN, certificates: [], sharedLinks: [] };
 };

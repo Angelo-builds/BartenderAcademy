@@ -1,6 +1,6 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { AppData, Cocktail, TheorySection, Language, SiteConfig } from './types';
+import { AppData, Cocktail, TheorySection, Language, SiteConfig, Certificate, ShareLink } from './types';
 import { getInitialData } from './data';
 import { translations } from './translations';
 
@@ -12,13 +12,22 @@ interface AppContextType {
   isAdmin: boolean;
   login: (password: string) => boolean;
   logout: () => void;
+  // Cocktails
   addCocktail: (cocktail: Cocktail) => void;
   updateCocktail: (cocktail: Cocktail) => void;
   deleteCocktail: (id: string) => void;
   setCocktails: (cocktails: Cocktail[]) => void;
+  // Theory
   addTheory: (theory: TheorySection) => void;
   updateTheory: (theory: TheorySection) => void;
   deleteTheory: (id: string) => void;
+  // Certificates
+  addCertificate: (cert: Certificate) => void;
+  updateCertificate: (cert: Certificate) => void;
+  deleteCertificate: (id: string) => void;
+  createShareLink: (ids: string[], expires: string | null, name: string) => string;
+  getSharedLink: (id: string) => ShareLink | undefined;
+  
   updateSiteConfig: (config: SiteConfig) => void;
   isDarkMode: boolean;
   toggleTheme: () => void;
@@ -35,9 +44,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
 
   // When language changes, reset data to that language's initial set
-  // Note: in a real app with backend, we would fetch the locale data.
-  // Here we re-initialize. If the user added custom drinks in 'IT', they won't appear in 'EN' automatically
-  // unless we implemented a complex sync. For this demo, switching language switches the dataset.
   useEffect(() => {
     setData(getInitialData(language));
   }, [language]);
@@ -114,6 +120,50 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     }));
   };
 
+  // --- Certificates ---
+  const addCertificate = (cert: Certificate) => {
+    setData(prev => ({
+      ...prev,
+      certificates: [...(prev.certificates || []), cert]
+    }));
+  };
+
+  const updateCertificate = (cert: Certificate) => {
+    setData(prev => ({
+      ...prev,
+      certificates: (prev.certificates || []).map(c => c.id === cert.id ? cert : c)
+    }));
+  };
+
+  const deleteCertificate = (id: string) => {
+    setData(prev => ({
+      ...prev,
+      certificates: (prev.certificates || []).filter(c => c.id !== id)
+    }));
+  };
+
+  const createShareLink = (ids: string[], expires: string | null, name: string) => {
+      const shareId = Math.random().toString(36).substring(2, 10) + Math.random().toString(36).substring(2, 6);
+      const newLink: ShareLink = {
+          id: shareId,
+          certificateIds: ids,
+          expirationDate: expires,
+          createdDate: new Date().toISOString(),
+          name: name
+      };
+      
+      setData(prev => ({
+          ...prev,
+          sharedLinks: [...(prev.sharedLinks || []), newLink]
+      }));
+
+      return shareId;
+  };
+
+  const getSharedLink = (id: string) => {
+      return (data.sharedLinks || []).find(l => l.id === id);
+  };
+
   // --- Site Config ---
   const updateSiteConfig = (config: SiteConfig) => {
     setData(prev => ({
@@ -138,6 +188,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       addTheory,
       updateTheory,
       deleteTheory,
+      addCertificate,
+      updateCertificate,
+      deleteCertificate,
+      createShareLink,
+      getSharedLink,
       updateSiteConfig,
       isDarkMode,
       toggleTheme

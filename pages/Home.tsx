@@ -1,13 +1,18 @@
 
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { BookOpen, Martini, FlaskConical, Users, ArrowRight, Star, Quote } from 'lucide-react';
+import { BookOpen, Martini, FlaskConical, Users, ArrowRight, Star, Quote, Pencil } from 'lucide-react';
 import { useAppStore } from '../store';
-import { Cocktail } from '../types';
+import { Cocktail, SiteConfig } from '../types';
+import EditModal, { EditField } from '../components/EditModal';
 
 const Home: React.FC = () => {
-  const { t, data } = useAppStore();
+  const { t, data, isAdmin, updateSiteConfig, language } = useAppStore();
   const [featuredCocktail, setFeaturedCocktail] = useState<Cocktail | null>(null);
+
+  // Edit Mode State
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editFormState, setEditFormState] = useState<SiteConfig>(data.siteConfig);
 
   // Use dynamic config if available, fallback to translations/defaults
   const { siteConfig } = data;
@@ -20,11 +25,60 @@ const Home: React.FC = () => {
         setFeaturedCocktail(randomC);
     }
   }, [data.cocktails]);
+
+  useEffect(() => {
+    setEditFormState(data.siteConfig);
+  }, [data.siteConfig, isEditModalOpen]);
+
+  // Handle Edit Save
+  const handleConfigSave = (newData: Record<string, string>) => {
+      const updatedConfig: SiteConfig = {
+          homeHeroImage: newData.homeHeroImage,
+          homeTitle: newData.homeTitle,
+          homeSubtitle: newData.homeSubtitle,
+          homeQuote: newData.homeQuote
+      };
+      updateSiteConfig(updatedConfig);
+      setIsEditModalOpen(false);
+  };
+
+  const handleEditChange = (key: string, val: string) => {
+      setEditFormState(prev => ({ ...prev, [key]: val }));
+  };
+
+  const editFields: EditField[] = [
+      { key: 'homeTitle', label: t.admin.config.heroTitle, type: 'text', value: editFormState.homeTitle },
+      { key: 'homeSubtitle', label: t.admin.config.heroSubtitle, type: 'textarea', value: editFormState.homeSubtitle },
+      { key: 'homeHeroImage', label: t.admin.config.heroImage, type: 'image', value: editFormState.homeHeroImage },
+      { key: 'homeQuote', label: t.admin.config.quote, type: 'textarea', value: editFormState.homeQuote },
+  ];
   
   return (
     <div className="flex flex-col gap-0 -mt-8">
+      
+      {/* Edit Modal */}
+      <EditModal 
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        onSave={handleConfigSave}
+        title={`${t.admin.config.title} (${language.toUpperCase()})`}
+        fields={editFields}
+        onChange={handleEditChange}
+      />
+
       {/* Hero Section */}
-      <div className="relative h-[85vh] w-full rounded-b-[3rem] overflow-hidden -mx-4 md:-mx-8 lg:-mx-12 w-[calc(100%+2rem)] md:w-[calc(100%+4rem)] lg:w-[calc(100%+6rem)] z-10">
+      <div className="relative min-h-[85vh] w-full rounded-b-[3rem] overflow-hidden -mx-4 md:-mx-8 lg:-mx-12 w-[calc(100%+2rem)] md:w-[calc(100%+4rem)] lg:w-[calc(100%+6rem)] z-10 flex flex-col group">
+          {/* Admin Edit Button for Hero */}
+          {isAdmin && (
+              <button 
+                onClick={() => setIsEditModalOpen(true)}
+                className="absolute top-24 right-8 z-50 p-3 bg-brand-orange text-white rounded-full shadow-lg hover:scale-110 transition-transform animate-fadeIn border-2 border-white"
+                title="Edit Home Content"
+              >
+                  <Pencil size={24} />
+              </button>
+          )}
+
           <img 
             src={siteConfig.homeHeroImage || "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=1920&q=80"} 
             alt="Bar Atmosphere" 
@@ -32,21 +86,21 @@ const Home: React.FC = () => {
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent opacity-90"></div>
           
-          <div className="relative z-10 h-full flex flex-col justify-center items-center text-center px-4 max-w-5xl mx-auto pt-20">
+          <div className="relative z-10 flex-grow flex flex-col justify-center items-center text-center px-4 max-w-5xl mx-auto pt-32 pb-20">
             <span className="inline-block py-2 px-4 rounded-full bg-brand-orange text-white font-bold text-xs uppercase tracking-[0.2em] mb-6 animate-fadeIn">
                 {t.home.welcome}
             </span>
-            <h1 className="text-6xl md:text-8xl font-black text-white tracking-tighter mb-8 leading-tight drop-shadow-2xl">
+            <h1 className="text-5xl md:text-7xl lg:text-8xl font-black text-white tracking-tighter mb-8 leading-tight drop-shadow-2xl">
               {siteConfig.homeTitle || t.home.title} 
             </h1>
             <p className="text-xl md:text-2xl text-gray-300 max-w-2xl mx-auto leading-relaxed mb-12 font-light">
               {siteConfig.homeSubtitle || t.home.subtitle}
             </p>
-             <div className="flex flex-col sm:flex-row gap-4">
-                <Link to="/cocktails" className="px-8 py-4 bg-white text-black rounded-full font-bold text-lg hover:bg-brand-orange hover:text-white transition-all shadow-[0_0_20px_rgba(255,255,255,0.3)] flex items-center justify-center gap-2">
+             <div className="flex flex-col sm:flex-row gap-4 z-20 w-full justify-center">
+                <Link to="/cocktails" className="px-8 py-4 bg-brand-orange text-white rounded-full font-bold text-lg hover:bg-brand-red transition-all shadow-lg shadow-brand-orange/40 flex items-center justify-center gap-2 transform hover:scale-105 active:scale-95 duration-300 min-w-[200px]">
                     {t.home.exploreRecipes} <ArrowRight size={20} />
                 </Link>
-                <Link to="/theory" className="px-8 py-4 bg-white/10 backdrop-blur-md text-white border border-white/20 rounded-full font-bold text-lg hover:bg-white/20 transition-colors">
+                <Link to="/theory" className="px-8 py-4 bg-white text-black rounded-full font-bold text-lg hover:bg-gray-100 transition-colors shadow-lg flex items-center justify-center transform hover:scale-105 active:scale-95 duration-300 min-w-[200px]">
                     {t.home.studyTheory}
                 </Link>
             </div>

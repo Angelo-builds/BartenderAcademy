@@ -29,15 +29,45 @@ export interface TheorySection {
   status?: 'published' | 'draft';
 }
 
+export interface Certificate {
+  id: string;
+  title: string;
+  section: string; // e.g., 'Corsi', 'Master', 'Seminari'
+  date: string;
+  description?: string;
+  image: string;
+}
+
+export interface ShareLink {
+  id: string; // Unique slug/hash
+  certificateIds: string[]; // IDs of certs to show
+  expirationDate?: string | null; // ISO string or null
+  createdDate: string;
+  name?: string; // Optional name for the admin to remember what this link is
+}
+
 export interface SiteConfig {
+  // Home
   homeHeroImage: string;
   homeTitle: string;
   homeSubtitle: string;
   homeQuote: string;
+  
+  // Theory Page
+  theoryHeroImage?: string;
+  theoryTitle?: string;
+  theorySubtitle?: string;
+
+  // Distillates Page
+  distillatesHeroImage?: string;
+  distillatesTitle?: string;
+  distillatesSubtitle?: string;
 }
 
 export interface AppData {
   cocktails: Cocktail[];
   theory: TheorySection[];
+  certificates: Certificate[];
+  sharedLinks: ShareLink[];
   siteConfig: SiteConfig;
 }

@@ -1,19 +1,114 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAppStore } from '../store';
-import { ChevronDown, Book, Bookmark, Layers } from 'lucide-react';
+import { ChevronDown, Book, Bookmark, Layers, Pencil } from 'lucide-react';
 import MarkdownRenderer from '../components/MarkdownRenderer';
+import EditModal, { EditField } from '../components/EditModal';
+import { TheorySection, SiteConfig } from '../types';
 
 const Theory: React.FC = () => {
-  const { data, t } = useAppStore();
+  const { data, t, isAdmin, updateTheory, updateSiteConfig, language } = useAppStore();
   const theoryItems = data.theory.filter(t => t.category !== 'Distillates' && t.status !== 'draft');
+  const { siteConfig } = data;
+
+  // --- EDIT MODAL STATE ---
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingType, setEditingType] = useState<'hero' | 'section' | null>(null);
+  const [currentSection, setCurrentSection] = useState<TheorySection | null>(null);
+  const [editFormState, setEditFormState] = useState<any>({});
+
+  // Handle Opening Modal
+  const openEditHero = () => {
+      setEditingType('hero');
+      setEditFormState({
+          theoryTitle: siteConfig.theoryTitle || t.theory.title,
+          theorySubtitle: siteConfig.theorySubtitle || t.theory.subtitle,
+          theoryHeroImage: siteConfig.theoryHeroImage
+      });
+      setIsEditModalOpen(true);
+  };
+
+  const openEditSection = (e: React.MouseEvent, section: TheorySection) => {
+      e.stopPropagation();
+      setEditingType('section');
+      setCurrentSection(section);
+      setEditFormState({
+          title: section.title,
+          content: section.content,
+          image: section.image || ''
+      });
+      setIsEditModalOpen(true);
+  };
+
+  // Handle Saving Changes
+  const handleSave = (newData: Record<string, string>) => {
+      if (editingType === 'hero') {
+          updateSiteConfig({
+              ...siteConfig,
+              theoryTitle: newData.theoryTitle,
+              theorySubtitle: newData.theorySubtitle,
+              theoryHeroImage: newData.theoryHeroImage
+          });
+      } else if (editingType === 'section' && currentSection) {
+          updateTheory({
+              ...currentSection,
+              title: newData.title,
+              content: newData.content,
+              image: newData.image
+          });
+      }
+      setIsEditModalOpen(false);
+      setEditingType(null);
+  };
+
+  // Define Fields based on type
+  const getEditFields = (): EditField[] => {
+      if (editingType === 'hero') {
+          return [
+              { key: 'theoryTitle', label: 'Page Title', type: 'text', value: editFormState.theoryTitle },
+              { key: 'theorySubtitle', label: 'Page Subtitle', type: 'textarea', value: editFormState.theorySubtitle },
+              { key: 'theoryHeroImage', label: 'Background Image', type: 'image', value: editFormState.theoryHeroImage },
+          ];
+      } else {
+          return [
+              { key: 'title', label: 'Section Title', type: 'text', value: editFormState.title },
+              { key: 'image', label: 'Sidebar Image', type: 'image', value: editFormState.image },
+              { key: 'content', label: 'Content (Markdown)', type: 'textarea', value: editFormState.content },
+          ];
+      }
+  };
 
   return (
     <div className="max-w-[1200px] mx-auto py-8 px-4">
+      {/* Edit Modal */}
+      <EditModal 
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        onSave={handleSave}
+        title={editingType === 'hero' ? 'Edit Theory Page Header' : `Edit Section (${language.toUpperCase()})`}
+        fields={getEditFields()}
+        onChange={(key, val) => setEditFormState(prev => ({ ...prev, [key]: val }))}
+      />
+
       {/* Hero Section */}
-      <div className="relative mb-12 py-16 px-8 rounded-[3rem] bg-gray-900 dark:bg-gray-900 overflow-hidden shadow-2xl">
+      <div className="relative mb-12 py-16 px-8 rounded-[3rem] bg-gray-900 dark:bg-gray-900 overflow-hidden shadow-2xl group">
+          
+          {isAdmin && (
+              <button 
+                onClick={openEditHero}
+                className="absolute top-8 right-8 z-50 p-3 bg-brand-orange text-white rounded-full shadow-lg hover:scale-110 transition-transform border-2 border-white"
+                title="Edit Header"
+              >
+                  <Pencil size={24} />
+              </button>
+          )}
+
           <div className="absolute inset-0 opacity-40">
-             <img src="https://images.unsplash.com/photo-1516975080664-ed2fc6a32937?auto=format&fit=crop&w=2000&q=80" alt="Theory Background" className="w-full h-full object-cover" />
+             <img 
+                src={siteConfig.theoryHeroImage || "https://images.unsplash.com/photo-1516975080664-ed2fc6a32937?auto=format&fit=crop&w=2000&q=80"} 
+                alt="Theory Background" 
+                className="w-full h-full object-cover" 
+             />
              <div className="absolute inset-0 bg-gradient-to-r from-gray-900 via-gray-900/80 to-transparent"></div>
           </div>
           
@@ -22,10 +117,10 @@ const Theory: React.FC = () => {
                  {t.home.school}
               </span>
               <h1 className="text-5xl md:text-6xl font-black text-white tracking-tight mb-6 leading-tight">
-                {t.theory.title}
+                {siteConfig.theoryTitle || t.theory.title}
               </h1>
               <p className="text-xl text-gray-300 font-light leading-relaxed">
-                {t.theory.subtitle}
+                {siteConfig.theorySubtitle || t.theory.subtitle}
               </p>
           </div>
       </div>
@@ -33,14 +128,20 @@ const Theory: React.FC = () => {
       {/* Chapters List */}
       <div className="space-y-6">
         {theoryItems.map((item, index) => (
-          <SectionAccordion key={item.id} item={item} index={index + 1} />
+          <SectionAccordion 
+            key={item.id} 
+            item={item} 
+            index={index + 1} 
+            isAdmin={isAdmin} 
+            onEdit={(e) => openEditSection(e, item)}
+          />
         ))}
       </div>
     </div>
   );
 };
 
-const SectionAccordion: React.FC<{ item: any, index: number }> = ({ item, index }) => {
+const SectionAccordion: React.FC<{ item: TheorySection, index: number, isAdmin: boolean, onEdit: (e: React.MouseEvent) => void }> = ({ item, index, isAdmin, onEdit }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -49,7 +150,7 @@ const SectionAccordion: React.FC<{ item: any, index: number }> = ({ item, index 
       {/* Accordion Header */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-stretch text-left focus:outline-none bg-transparent group"
+        className="w-full flex items-stretch text-left focus:outline-none bg-transparent group relative"
       >
         {/* Number / Side Strip */}
         <div className={`w-2 md:w-3 transition-colors duration-300 ${isOpen ? 'bg-brand-orange' : 'bg-gray-200 dark:bg-gray-800 group-hover:bg-brand-orange/50'}`}></div>
@@ -70,8 +171,18 @@ const SectionAccordion: React.FC<{ item: any, index: number }> = ({ item, index 
                 </div>
             </div>
 
-            <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ${isOpen ? 'bg-brand-orange text-white rotate-180' : 'bg-gray-100 dark:bg-gray-800 text-gray-400 group-hover:bg-gray-200 dark:group-hover:bg-gray-700'}`}>
-                 <ChevronDown size={20} />
+            <div className="flex items-center gap-4">
+                {isAdmin && (
+                    <div 
+                        onClick={onEdit} 
+                        className="p-2 bg-brand-orange text-white rounded-full hover:scale-110 transition-transform shadow-md z-20"
+                    >
+                        <Pencil size={16} />
+                    </div>
+                )}
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ${isOpen ? 'bg-brand-orange text-white rotate-180' : 'bg-gray-100 dark:bg-gray-800 text-gray-400 group-hover:bg-gray-200 dark:group-hover:bg-gray-700'}`}>
+                     <ChevronDown size={20} />
+                </div>
             </div>
         </div>
       </button>

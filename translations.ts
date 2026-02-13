@@ -95,11 +95,21 @@ export const translations = {
       loginButton: 'Entra',
       tabs: {
         recipes: 'Database Ricette',
-        theory: 'Moduli Teorici'
+        theory: 'Moduli Teorici',
+        certificates: 'Certificazioni',
+        config: 'Configurazione'
+      },
+      config: {
+        title: 'Configurazione Home Page',
+        heroTitle: 'Titolo Hero',
+        heroSubtitle: 'Sottotitolo',
+        heroImage: 'Immagine Hero',
+        quote: 'Citazione',
+        save: 'Salva Configurazione'
       },
       form: {
         name: 'Nome del Drink',
-        title: 'Titolo Sezione',
+        title: 'Titolo',
         status: 'Stato Pubblicazione',
         method: 'Metodo di Preparazione',
         glass: 'Bicchiere di Servizio',
@@ -113,7 +123,10 @@ export const translations = {
         published: 'Pubblico',
         draft: 'Bozza',
         comingSoon: 'Coming Soon',
-        image: 'URL Foto (es. Unsplash)'
+        image: 'URL Foto (es. Unsplash)',
+        date: 'Data Conseguimento',
+        section: 'Sezione (es. Corsi, Master)',
+        desc: 'Descrizione (opzionale)'
       },
       bulk: {
         title: 'Editor Massivo (JSON)',
@@ -128,6 +141,18 @@ export const translations = {
         size: 'Dimensione',
         generate: 'Genera Immagine',
         generating: 'Creazione in corso...'
+      },
+      certs: {
+          title: 'I Miei Certificati',
+          add: 'Nuovo Certificato',
+          share: 'Condividi',
+          shareTitle: 'Genera Link Condiviso',
+          shareDesc: 'Seleziona i certificati che vuoi rendere visibili a chi possiede il link.',
+          generateLink: 'Crea Link',
+          copyLink: 'Copia Link',
+          expires: 'Scadenza (opzionale)',
+          noCerts: 'Nessun certificato caricato.',
+          linkCopied: 'Link copiato!'
       }
     },
     common: {
@@ -227,11 +252,21 @@ export const translations = {
       loginButton: 'Enter',
       tabs: {
         recipes: 'Recipe Database',
-        theory: 'Theory Modules'
+        theory: 'Theory Modules',
+        certificates: 'Certifications',
+        config: 'Configuration'
+      },
+      config: {
+        title: 'Home Page Configuration',
+        heroTitle: 'Hero Title',
+        heroSubtitle: 'Subtitle',
+        heroImage: 'Hero Image',
+        quote: 'Quote',
+        save: 'Save Configuration'
       },
       form: {
         name: 'Drink Name',
-        title: 'Section Title',
+        title: 'Title',
         status: 'Publication Status',
         method: 'Preparation Method',
         glass: 'Service Glass',
@@ -245,7 +280,10 @@ export const translations = {
         published: 'Public',
         draft: 'Draft',
         comingSoon: 'Coming Soon',
-        image: 'Photo URL (e.g. Unsplash)'
+        image: 'Photo URL (e.g. Unsplash)',
+        date: 'Date Obtained',
+        section: 'Section (e.g., Course, Master)',
+        desc: 'Description (optional)'
       },
       bulk: {
         title: 'Bulk Editor (JSON)',
@@ -260,6 +298,18 @@ export const translations = {
         size: 'Size',
         generate: 'Generate Image',
         generating: 'Creating...'
+      },
+      certs: {
+          title: 'My Certificates',
+          add: 'New Certificate',
+          share: 'Share',
+          shareTitle: 'Generate Shared Link',
+          shareDesc: 'Select the certificates you want to be visible to those with the link.',
+          generateLink: 'Create Link',
+          copyLink: 'Copy Link',
+          expires: 'Expiration (optional)',
+          noCerts: 'No certificates uploaded.',
+          linkCopied: 'Link copied!'
       }
     },
     common: {
