@@ -1,16 +1,16 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useAppStore } from '../store';
-import { Cocktail, TheorySection } from '../types';
-import { Plus, Minus, Save, Trash2, LayoutList, BookOpen, X, Edit, FileJson, Sparkles, Loader, Upload, Link as LinkIcon, Image as ImageIcon } from 'lucide-react';
+import { Cocktail, TheorySection, SiteConfig } from '../types';
+import { Plus, Minus, Save, Trash2, LayoutList, BookOpen, X, Edit, FileJson, Sparkles, Loader, Upload, Link as LinkIcon, Image as ImageIcon, Settings } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 import { GoogleGenAI } from "@google/genai";
 
 const Admin: React.FC = () => {
-  const { isAdmin, login, logout, addCocktail, updateCocktail, deleteCocktail, setCocktails, data, addTheory, updateTheory, deleteTheory, t } = useAppStore();
+  const { isAdmin, login, logout, addCocktail, updateCocktail, deleteCocktail, setCocktails, data, addTheory, updateTheory, deleteTheory, updateSiteConfig, t } = useAppStore();
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [activeTab, setActiveTab] = useState<'cocktails' | 'theory'>('cocktails');
+  const [activeTab, setActiveTab] = useState<'cocktails' | 'theory' | 'config'>('cocktails');
   const [viewMode, setViewMode] = useState<'list' | 'edit' | 'bulk'>('list');
   const [bulkJson, setBulkJson] = useState('');
   const location = useLocation();
@@ -39,6 +39,7 @@ const Admin: React.FC = () => {
 
   const [cocktailForm, setCocktailForm] = useState<Partial<Cocktail>>(emptyCocktail);
   const [theoryForm, setTheoryForm] = useState<Partial<TheorySection>>(emptyTheory);
+  const [siteConfigForm, setSiteConfigForm] = useState<SiteConfig>(data.siteConfig);
   const [imageSource, setImageSource] = useState<'url' | 'file' | 'ai'>('url');
 
   // --- Image Generation State ---
@@ -56,6 +57,12 @@ const Admin: React.FC = () => {
       }
   }, [location]);
 
+  // Sync site config form when data changes
+  useEffect(() => {
+    setSiteConfigForm(data.siteConfig);
+  }, [data.siteConfig]);
+
+
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     if (login(password)) {
@@ -66,15 +73,17 @@ const Admin: React.FC = () => {
   };
 
   // --- File Upload Handler ---
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, type: 'cocktail' | 'theory') => {
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, type: 'cocktail' | 'theory' | 'config') => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
         if (type === 'cocktail') {
              setCocktailForm(prev => ({ ...prev, image: reader.result as string }));
-        } else {
+        } else if (type === 'theory') {
              setTheoryForm(prev => ({ ...prev, image: reader.result as string }));
+        } else {
+             setSiteConfigForm(prev => ({ ...prev, homeHeroImage: reader.result as string }));
         }
       };
       reader.readAsDataURL(file);
@@ -236,6 +245,13 @@ const Admin: React.FC = () => {
       }
   };
 
+  // --- Site Config Handlers ---
+  const handleSiteConfigSubmit = (e: React.FormEvent) => {
+      e.preventDefault();
+      updateSiteConfig(siteConfigForm);
+      alert('Configurazione salvata!');
+  };
+
   // --- Ingredient Helpers ---
   const updateIngredient = (index: number, field: 'name' | 'amount', val: string) => {
       const newIngs = [...(cocktailForm.ingredients || [])];
@@ -285,7 +301,7 @@ const Admin: React.FC = () => {
   }
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
+    <div className="max-w-6xl mx-auto space-y-6 pt-12">
       
       {/* Top Bar */}
       <div className="flex flex-col md:flex-row justify-between items-center bg-white dark:bg-gray-900 p-6 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-800">
@@ -307,16 +323,17 @@ const Admin: React.FC = () => {
                   </button>
               )}
 
-              <button 
-                onClick={() => { 
-                    setViewMode('edit'); 
-                    setActiveTab(activeTab); 
-                    activeTab === 'cocktails' ? setCocktailForm(emptyCocktail) : setTheoryForm(emptyTheory);
-                }} 
-                className="flex items-center gap-2 px-6 py-2 rounded-full bg-brand-orange text-white hover:bg-brand-red transition-colors text-sm font-bold shadow-lg shadow-brand-orange/20"
-              >
-                  <Plus size={18} /> {t.admin.newItem}
-              </button>
+              {activeTab !== 'config' && (
+                  <button 
+                    onClick={() => { 
+                        setViewMode('edit'); 
+                        activeTab === 'cocktails' ? setCocktailForm(emptyCocktail) : setTheoryForm(emptyTheory);
+                    }} 
+                    className="flex items-center gap-2 px-6 py-2 rounded-full bg-brand-orange text-white hover:bg-brand-red transition-colors text-sm font-bold shadow-lg shadow-brand-orange/20"
+                  >
+                      <Plus size={18} /> {t.admin.newItem}
+                  </button>
+              )}
           </div>
       </div>
 
@@ -332,16 +349,73 @@ const Admin: React.FC = () => {
                 </button>
                 <button 
                     onClick={() => { setActiveTab('theory'); setViewMode('list'); }}
-                    className={`flex items-center gap-3 w-full p-4 rounded-2xl transition-all font-medium ${activeTab === 'theory' ? 'bg-gray-100 dark:bg-gray-800 text-brand-orange dark:text-night-azure' : 'text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800/50'}`}
+                    className={`flex items-center gap-3 w-full p-4 rounded-2xl transition-all font-medium mb-1 ${activeTab === 'theory' ? 'bg-gray-100 dark:bg-gray-800 text-brand-orange dark:text-night-azure' : 'text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800/50'}`}
                 >
                     <BookOpen size={20} /> {t.admin.tabs.theory}
+                </button>
+                <button 
+                    onClick={() => { setActiveTab('config'); setViewMode('edit'); }}
+                    className={`flex items-center gap-3 w-full p-4 rounded-2xl transition-all font-medium ${activeTab === 'config' ? 'bg-gray-100 dark:bg-gray-800 text-brand-orange dark:text-night-azure' : 'text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800/50'}`}
+                >
+                    <Settings size={20} /> Configurazione Sito
                 </button>
             </div>
         </div>
 
         {/* Main Content Area */}
         <div className="flex-1">
-            {viewMode === 'bulk' && (
+            {activeTab === 'config' && (
+                 <div className="bg-white dark:bg-gray-900 rounded-3xl shadow-lg border border-gray-100 dark:border-gray-800 p-8 animate-fadeIn">
+                     <h2 className="text-2xl font-bold dark:text-white mb-6">Configurazione Home Page</h2>
+                     <form onSubmit={handleSiteConfigSubmit} className="space-y-6">
+                        <div className="space-y-2">
+                             <label className="text-xs font-bold uppercase text-gray-500 tracking-wider">Titolo Hero</label>
+                             <input className="w-full p-3 bg-gray-50 dark:bg-black/50 rounded-xl border-none ring-1 ring-gray-200 dark:ring-gray-700 focus:ring-2 focus:ring-brand-orange outline-none dark:text-white"
+                                 value={siteConfigForm.homeTitle} onChange={e => setSiteConfigForm({...siteConfigForm, homeTitle: e.target.value})} />
+                        </div>
+                        <div className="space-y-2">
+                             <label className="text-xs font-bold uppercase text-gray-500 tracking-wider">Sottotitolo Hero</label>
+                             <textarea className="w-full p-3 bg-gray-50 dark:bg-black/50 rounded-xl border-none ring-1 ring-gray-200 dark:ring-gray-700 focus:ring-2 focus:ring-brand-orange outline-none dark:text-white h-24"
+                                 value={siteConfigForm.homeSubtitle} onChange={e => setSiteConfigForm({...siteConfigForm, homeSubtitle: e.target.value})} />
+                        </div>
+                        
+                        <div className="space-y-4">
+                            <label className="text-xs font-bold uppercase text-gray-500 tracking-wider">Immagine Hero</label>
+                             <div className="flex gap-4">
+                                <input 
+                                    className="flex-1 p-3 bg-gray-50 dark:bg-black/50 rounded-xl border-none ring-1 ring-gray-200 dark:ring-gray-700 focus:ring-2 focus:ring-brand-orange outline-none dark:text-white"
+                                    value={siteConfigForm.homeHeroImage || ''} 
+                                    onChange={e => setSiteConfigForm({...siteConfigForm, homeHeroImage: e.target.value})} 
+                                    placeholder="https://images.unsplash.com..." 
+                                />
+                                <div className="relative">
+                                     <input type="file" onChange={(e) => handleFileUpload(e, 'config')} className="hidden" id="configHero" accept="image/*" />
+                                     <label htmlFor="configHero" className="flex items-center justify-center p-3 bg-gray-200 dark:bg-gray-700 rounded-xl cursor-pointer hover:bg-gray-300 dark:hover:bg-gray-600">
+                                         <Upload size={20} className="text-gray-600 dark:text-white" />
+                                     </label>
+                                </div>
+                            </div>
+                            {siteConfigForm.homeHeroImage && (
+                                 <div className="w-full h-40 bg-gray-100 dark:bg-black rounded-xl overflow-hidden relative">
+                                     <img src={siteConfigForm.homeHeroImage} alt="Preview" className="w-full h-full object-cover" />
+                                 </div>
+                             )}
+                        </div>
+
+                         <div className="space-y-2">
+                             <label className="text-xs font-bold uppercase text-gray-500 tracking-wider">Citazione del Giorno</label>
+                             <textarea className="w-full p-3 bg-gray-50 dark:bg-black/50 rounded-xl border-none ring-1 ring-gray-200 dark:ring-gray-700 focus:ring-2 focus:ring-brand-orange outline-none dark:text-white h-24"
+                                 value={siteConfigForm.homeQuote} onChange={e => setSiteConfigForm({...siteConfigForm, homeQuote: e.target.value})} />
+                        </div>
+
+                        <button type="submit" className="w-full py-4 bg-brand-orange text-white rounded-xl font-bold text-lg shadow-lg shadow-brand-orange/30 hover:scale-[1.01] transition-transform">
+                            Salva Configurazione
+                        </button>
+                     </form>
+                 </div>
+            )}
+
+            {viewMode === 'bulk' && activeTab === 'cocktails' && (
                 <div className="bg-white dark:bg-gray-900 rounded-3xl shadow-lg border border-gray-100 dark:border-gray-800 p-8 animate-fadeIn">
                     <div className="flex justify-between items-center mb-4">
                         <div className="flex items-center gap-3">
@@ -374,7 +448,7 @@ const Admin: React.FC = () => {
                 </div>
             )}
 
-            {viewMode === 'list' && (
+            {viewMode === 'list' && activeTab !== 'config' && (
                 <div className="bg-white dark:bg-gray-900 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden">
                     {/* List Header */}
                     <div className="p-6 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center">

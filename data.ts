@@ -1,5 +1,5 @@
 
-import { Cocktail, TheorySection, Language } from './types';
+import { Cocktail, TheorySection, Language, SiteConfig } from './types';
 
 // --- IMAGES (High Quality Unsplash IDs) ---
 const IMG = {
@@ -7,7 +7,7 @@ const IMG = {
   MARTINI: 'https://images.unsplash.com/photo-1575023782549-62ca0d2c3b4a?auto=format&fit=crop&w=800&q=80',
   NEGRONI: 'https://images.unsplash.com/photo-1551534066-50e503e9114b?auto=format&fit=crop&w=800&q=80',
   OLD_FASHIONED: 'https://images.unsplash.com/photo-1595977436692-0b815949dc97?auto=format&fit=crop&w=800&q=80',
-  MANHATTAN: 'https://images.unsplash.com/photo-1541544741938-0af808871cc8?auto=format&fit=crop&w=800&q=80', // Updated
+  MANHATTAN: 'https://images.unsplash.com/photo-1541544741938-0af808871cc8?auto=format&fit=crop&w=800&q=80',
   DAIQUIRI: 'https://images.unsplash.com/photo-1615887023516-9b6bcd559e87?auto=format&fit=crop&w=800&q=80',
   MARGARITA: 'https://images.unsplash.com/photo-1572569028738-411a5b822646?auto=format&fit=crop&w=800&q=80',
   WHISKEY_SOUR: 'https://images.unsplash.com/photo-1629288102432-843825832a8f?auto=format&fit=crop&w=800&q=80',
@@ -30,19 +30,26 @@ const IMG = {
   PARADISE: 'https://images.unsplash.com/photo-1599388147551-8935c43d56f5?auto=format&fit=crop&w=800&q=80',
   FRENCH_75: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?auto=format&fit=crop&w=800&q=80',
   
-  // Theory Images (Updated for reliability)
+  // Theory Images
   SETUP: 'https://images.unsplash.com/photo-1574096079513-d8259312b785?auto=format&fit=crop&w=1200&q=80',
   GLASSWARE: 'https://images.unsplash.com/photo-1585293678077-d6402377c858?auto=format&fit=crop&w=1200&q=80',
-  TECHNIQUES: 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=1200&q=80', // Replaced with a mixing action shot
+  TECHNIQUES: 'https://images.unsplash.com/photo-1605218427368-35b86121b4a6?auto=format&fit=crop&w=1200&q=80',
   
-  // Distillates Images (Updated for reliability)
-  VODKA: 'https://images.unsplash.com/photo-1565538392190-33633d7eb92b?auto=format&fit=crop&w=1200&q=80',
-  GIN: 'https://images.unsplash.com/photo-1614619374495-9f5b40cb0359?auto=format&fit=crop&w=1200&q=80',
-  RUM: 'https://images.unsplash.com/photo-1610419163073-1f1989c7eb5e?auto=format&fit=crop&w=1200&q=80',
+  // Distillates Images
+  VODKA: 'https://images.unsplash.com/photo-1568644396922-5c3bfae12521?auto=format&fit=crop&w=1200&q=80',
+  GIN: 'https://images.unsplash.com/photo-1607622750671-6d9eb16b49b6?auto=format&fit=crop&w=1200&q=80',
+  RUM: 'https://images.unsplash.com/photo-1614313511387-1436a4480ebb?auto=format&fit=crop&w=1200&q=80',
   TEQUILA: 'https://images.unsplash.com/photo-1516535794938-606387ce5601?auto=format&fit=crop&w=1200&q=80',
   WHISKEY: 'https://images.unsplash.com/photo-1527281400683-1aae777175f8?auto=format&fit=crop&w=1200&q=80',
-  COGNAC: 'https://images.unsplash.com/photo-1616259028564-fcd61eb728b6?auto=format&fit=crop&w=1200&q=80',
-  GRAPPA: 'https://images.unsplash.com/photo-1562601579-599a51094145?auto=format&fit=crop&w=1200&q=80'
+  COGNAC: 'https://images.unsplash.com/photo-1628173420803-a1789c836968?auto=format&fit=crop&w=1200&q=80',
+};
+
+// Initial Site Config
+const defaultSiteConfig: SiteConfig = {
+  homeHeroImage: 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=1920&q=80',
+  homeTitle: 'Bartender',
+  homeSubtitle: 'L\'eccellenza nella formazione per bartender. Un percorso completo dalla merceologia alla mixology avanzata.',
+  homeQuote: 'Il bar non è solo un luogo, è un palcoscenico. Ogni cocktail è una storia, ogni cliente un ospite d\'onore.'
 };
 
 // ITALIAN DATA
@@ -163,15 +170,15 @@ Disposizione standard per l'efficienza lavorativa (da destra a sinistra per i de
 
 **Scozia (Scotch Whisky)**:
 - *Single Malt*: 100% orzo maltato, singola distilleria, alambicco discontinuo (Pot Still), torba (spesso).
-- *Blended*: Miscela di Single Malt e Grain Whisky.
+- *Blended*: Miscela di Single Malt and Grain Whisky.
 
-**Irlanda (Irish Whiskey)**:
+**Ireland (Irish Whiskey)**:
 - Tripla distillazione (più morbido), generalmente non torbato.
 
 **USA**:
-- *Bourbon*: Min 51% mais, botti nuove di quercia carbonizzate. Dolce, vanigliato.
-- *Rye*: Min 51% segale. Speziato, secco.
-- *Tennessee*: Come il bourbon ma filtrato a carbonella di acero (Lincoln County Process - es. Jack Daniel's).`
+- *Bourbon*: Min 51% corn, new charred oak barrels. Sweet, vanilla.
+- *Rye*: Min 51% rye. Spicy, dry.
+- *Tennessee*: Like bourbon but filtered through maple charcoal (Lincoln County Process - es. Jack Daniel's).`
   },
   {
     id: 'd6', category: 'Distillates', title: 'Brandy & Cognac', status: 'published',
@@ -184,22 +191,9 @@ Disposizione standard per l'efficienza lavorativa (da destra a sinistra per i de
 - Doppia distillazione in alambicco Charentais.
 
 **Classificazione**:
-  - *VS* (Very Special): min 2 anni.
-  - *VSOP* (Very Superior Old Pale): min 4 anni.
-  - *XO* (Extra Old): min 10 anni.`
-  },
-  {
-    id: 'd7', category: 'Distillates', title: 'Grappa', status: 'published',
-    image: IMG.GRAPPA,
-    content: `**Origine**: Italia.
-
-**Materia Prima**: Vinacce (bucce dell'uva fermentate dopo la svinatura).
-
-**Tipologie**:
-- *Giovane*: Incolore, aromi primari dell'uva.
-- *Aromatica*: Da uve aromatiche (Moscato, Gewürztraminer).
-- *Invecchiata*: Min 12 mesi in legno.
-- *Riserva*: Min 18 mesi in legno.`
+  - *VS* (Very Special): min 2 years.
+  - *VSOP* (Very Superior Old Pale): min 4 years.
+  - *XO* (Extra Old): min 10 years.`
   }
 ];
 
@@ -253,7 +247,7 @@ const cocktails_IT: Cocktail[] = [
   {
     id: 'c110', name: 'Sidecar', method: 'Shake & Strain', glass: 'Coppa Martini', category: 'All Day', era: 'Vintage', status: 'published',
     image: IMG.SIDECAR, garnish: 'Bordatura di Zucchero (opz)',
-    ingredients: [{ name: 'Cognac', amount: '1 ½ oz' }, { name: 'Triple Sec', amount: '¾ oz' }, { name: 'Succo di Limone', amount: '¾ oz' }]
+    ingredients: [{ name: 'Cognac', amount: '1 ½ oz' }, { name: 'Triple Sec', amount: '¾ oz' }, { name: 'Lemon Juice', amount: '¾ oz' }]
   },
   {
     id: 'c111', name: 'Whiskey Sour', method: 'Shake & Strain', glass: 'Old Fashioned', category: 'Pre Dinner', era: 'Vintage', status: 'published',
@@ -477,19 +471,6 @@ Standard arrangement for workflow efficiency (Right to Left for right-handed):
   - *VS* (Very Special): min 2 years.
   - *VSOP* (Very Superior Old Pale): min 4 years.
   - *XO* (Extra Old): min 10 years.`
-  },
-  {
-    id: 'd7', category: 'Distillates', title: 'Grappa', status: 'published',
-    image: IMG.GRAPPA,
-    content: `**Origin**: Italy.
-
-**Raw Material**: Pomace (grape skins fermented after winemaking).
-
-**Types**:
-- *Young*: Colorless, primary grape aromas.
-- *Aromatic*: From aromatic grapes (Moscato, Gewürztraminer).
-- *Aged*: Min 12 months in wood.
-- *Reserve*: Min 18 months in wood.`
   }
 ];
 
@@ -628,6 +609,6 @@ const cocktails_EN: Cocktail[] = [
 
 export const getInitialData = (lang: Language) => {
   return lang === 'it' 
-    ? { cocktails: cocktails_IT, theory: theory_IT }
-    : { cocktails: cocktails_EN, theory: theory_EN };
+    ? { cocktails: cocktails_IT, theory: theory_IT, siteConfig: defaultSiteConfig }
+    : { cocktails: cocktails_EN, theory: theory_EN, siteConfig: defaultSiteConfig };
 };

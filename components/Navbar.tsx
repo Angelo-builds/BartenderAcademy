@@ -1,11 +1,12 @@
+
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Sun, Moon, LogOut, User, Globe } from 'lucide-react';
+import { Menu, X, Sun, Moon, User, Globe, Martini } from 'lucide-react';
 import { useAppStore } from '../store';
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { isDarkMode, toggleTheme, isAdmin, logout, language, setLanguage, t } = useAppStore();
+  const { isDarkMode, toggleTheme, isAdmin, language, setLanguage, t } = useAppStore();
   const location = useLocation();
 
   const navLinks = [
@@ -23,109 +24,106 @@ const Navbar: React.FC = () => {
   };
 
   return (
-    <nav className="sticky top-0 z-50 bg-white/70 dark:bg-black/70 backdrop-blur-lg border-b border-gray-200/50 dark:border-gray-800/50 transition-all duration-300">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          <div className="flex items-center gap-2">
-            <Link to="/" className="flex items-center gap-2 group">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-orange to-brand-red flex items-center justify-center text-white font-bold text-sm shadow-md group-hover:shadow-lg transition-all">
-                BS
-              </div>
-              <span className="text-gray-900 dark:text-white font-bold text-lg tracking-tight">
-                Bartender<span className="font-light text-brand-orange dark:text-night-azure">School</span>
-              </span>
-            </Link>
-          </div>
+    <>
+      <nav className="fixed top-4 left-0 right-0 z-50 flex justify-center px-4 pointer-events-none">
+        <div className="pointer-events-auto bg-white/80 dark:bg-black/90 backdrop-blur-xl border border-white/40 dark:border-white/10 dark:shadow-[0_0_15px_rgba(255,255,255,0.3)] rounded-full px-2 py-2 shadow-2xl shadow-black/5 transition-all duration-500 max-w-5xl w-full flex items-center justify-between">
           
-          <div className="hidden md:block">
-            <div className="ml-10 flex items-center space-x-1">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.path}
-                  to={link.path}
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
-                    isActive(link.path)
-                      ? 'bg-gray-100 dark:bg-gray-800 text-brand-orange dark:text-night-azure shadow-sm'
-                      : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-800/50'
-                  }`}
-                >
-                  {link.name}
-                </Link>
-              ))}
+          {/* Logo */}
+          <Link to="/" className="flex items-center gap-3 pl-4 pr-6 group">
+            <div className="relative flex items-center justify-center w-10 h-10 rounded-2xl bg-gradient-to-br from-brand-orange to-red-600 dark:from-blue-600 dark:to-night-azure shadow-lg shadow-orange-500/20 dark:shadow-blue-500/20 group-hover:shadow-orange-500/40 dark:group-hover:shadow-blue-500/40 transition-all duration-300 group-hover:scale-105 group-hover:rotate-3">
+                <Martini className="text-white w-5 h-5 -ml-0.5 group-hover:-rotate-12 transition-transform duration-300" strokeWidth={2.5} />
+                <div className="absolute top-2 right-2.5 w-1.5 h-1.5 bg-yellow-300 rounded-full animate-pulse"></div>
             </div>
-          </div>
-
-          <div className="flex items-center gap-3">
-             <button
-              onClick={toggleLanguage}
-              className="flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors uppercase"
-            >
-              <Globe size={14} /> {language}
-            </button>
-
-            <button
-              onClick={toggleTheme}
-              className="p-2 rounded-full text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 transition-colors"
-              aria-label="Toggle Theme"
-            >
-              {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
-            </button>
-            
-            {isAdmin ? (
-               <Link 
-                 to="/admin" 
-                 className="flex items-center gap-2 px-4 py-2 rounded-full bg-black text-white dark:bg-white dark:text-black text-xs font-bold uppercase tracking-wider hover:opacity-80 transition-opacity shadow-md"
-               >
-                 <span>{t.admin.dashboard}</span>
-               </Link>
-            ) : (
-               <Link to="/admin" className="p-2 text-gray-400 hover:text-gray-800 dark:hover:text-white transition-colors">
-                 <User size={20} />
-               </Link>
-            )}
-
-            <div className="-mr-2 flex md:hidden">
-              <button
-                onClick={() => setIsOpen(!isOpen)}
-                className="inline-flex items-center justify-center p-2 rounded-md text-gray-600 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none"
-              >
-                {isOpen ? <X size={24} /> : <Menu size={24} />}
-              </button>
+            <div className="flex flex-col justify-center">
+                <span className="hidden sm:block text-gray-900 dark:text-white font-black text-lg leading-none tracking-tight group-hover:text-brand-orange dark:group-hover:text-night-azure transition-colors">
+                BARTENDER
+                </span>
+                <span className="hidden sm:block text-[10px] font-bold text-gray-400 dark:text-night-azure uppercase tracking-[0.3em] leading-none transition-colors mt-0.5">
+                SCHOOL
+                </span>
             </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Mobile menu */}
-      {isOpen && (
-        <div className="md:hidden bg-white/95 dark:bg-black/95 backdrop-blur-xl border-b border-gray-200 dark:border-gray-800 absolute w-full z-50">
-          <div className="px-4 pt-2 pb-6 space-y-2">
+          </Link>
+          
+          {/* Desktop Links */}
+          <div className="hidden md:flex items-center gap-1">
             {navLinks.map((link) => (
               <Link
                 key={link.path}
                 to={link.path}
-                onClick={() => setIsOpen(false)}
-                className={`block px-4 py-3 rounded-xl text-base font-medium ${
-                   isActive(link.path)
-                      ? 'bg-gray-100 dark:bg-gray-800 text-brand-orange dark:text-night-azure'
-                      : 'text-gray-600 dark:text-gray-300'
+                className={`relative px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
+                  isActive(link.path)
+                    ? 'text-white'
+                    : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-white/10'
                 }`}
+              >
+                {isActive(link.path) && (
+                    <span className="absolute inset-0 bg-gray-900 dark:bg-night-blue rounded-full -z-10 animate-scale-in shadow-sm"></span>
+                )}
+                {/* Text is handled by parent class, explicit span removed for cleaner DOM */}
+                <span>{link.name}</span>
+              </Link>
+            ))}
+          </div>
+
+          {/* Actions */}
+          <div className="flex items-center gap-2 pl-4 pr-2">
+             <button
+              onClick={toggleLanguage}
+              className="w-9 h-9 flex items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all hover:rotate-12"
+            >
+               <span key={language} className="text-xs font-black uppercase animate-slide-down">{language}</span>
+            </button>
+
+            <button
+              onClick={toggleTheme}
+              className="w-9 h-9 flex items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all active:scale-90"
+            >
+               <div key={isDarkMode ? 'dark' : 'light'} className="animate-scale-in">
+                 {isDarkMode ? <Sun size={16} /> : <Moon size={16} />}
+               </div>
+            </button>
+            
+            <Link 
+              to="/admin" 
+              className={`w-9 h-9 flex items-center justify-center rounded-full transition-all hover:scale-110 ${isAdmin ? 'bg-brand-orange dark:bg-night-blue text-white shadow-lg shadow-brand-orange/40 dark:shadow-blue-500/40' : 'bg-gray-100 dark:bg-gray-800 text-gray-400'}`}
+            >
+                 <User size={16} />
+            </Link>
+
+            {/* Mobile Menu Button */}
+            <div className="md:hidden ml-2">
+              <button
+                onClick={() => setIsOpen(!isOpen)}
+                className="w-9 h-9 flex items-center justify-center rounded-full bg-gray-900 dark:bg-white text-white dark:text-black hover:opacity-80 transition-opacity"
+              >
+                {isOpen ? <X size={18} /> : <Menu size={18} />}
+              </button>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      {/* Mobile Menu Overlay */}
+      {isOpen && (
+        <div className="fixed inset-0 z-40 bg-white/95 dark:bg-black/95 backdrop-blur-xl animate-fadeIn pt-24 px-6 flex flex-col items-center">
+            {navLinks.map((link, idx) => (
+              <Link
+                key={link.path}
+                to={link.path}
+                onClick={() => setIsOpen(false)}
+                className={`w-full text-center py-4 text-2xl font-bold border-b border-gray-100 dark:border-gray-800 transition-all ${
+                   isActive(link.path)
+                      ? 'text-brand-orange dark:text-night-azure'
+                      : 'text-gray-900 dark:text-white'
+                }`}
+                style={{ animationDelay: `${idx * 50}ms` }}
               >
                 {link.name}
               </Link>
             ))}
-             <button onClick={() => {toggleLanguage(); setIsOpen(false);}} className="block w-full text-left px-4 py-3 rounded-xl text-base font-medium text-gray-600 dark:text-gray-300">
-                Switch Language ({language.toUpperCase()})
-             </button>
-             {isAdmin && (
-                <Link to="/admin" onClick={() => setIsOpen(false)} className="block px-4 py-3 mt-4 rounded-xl bg-brand-orange text-white font-bold text-center">
-                  {t.admin.dashboard}
-                </Link>
-              )}
-          </div>
         </div>
       )}
-    </nav>
+    </>
   );
 };
 

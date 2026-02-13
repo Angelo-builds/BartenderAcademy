@@ -18,6 +18,8 @@ export const translations = {
       subtitle: 'L\'eccellenza nella formazione per bartender. Un percorso completo dalla merceologia alla mixology avanzata.',
       exploreRecipes: 'Sfoglia Ricettario',
       studyTheory: 'Manuale Tecnico',
+      featured: 'Cocktail in Evidenza',
+      viewRecipe: 'Vai alla Ricetta',
       quotes: [
         '"Il bar non è solo un luogo, è un palcoscenico. Ogni cocktail è una storia, ogni cliente un ospite d\'onore."',
         '"La mixology è l\'arte di mettere un sorriso in un bicchiere. Miscela con passione."',
@@ -148,6 +150,8 @@ export const translations = {
       subtitle: 'Excellence in bartender training. A complete journey from product knowledge to advanced mixology.',
       exploreRecipes: 'Browse Recipes',
       studyTheory: 'Technical Manual',
+      featured: 'Featured Cocktail',
+      viewRecipe: 'View Recipe',
       quotes: [
         '"The bar is not just a place, it is a stage. Every cocktail is a story, every customer a guest of honor."',
         '"Mixology is the art of putting a smile in a glass. Mix with passion."',

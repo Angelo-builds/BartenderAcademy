@@ -29,7 +29,15 @@ export interface TheorySection {
   status?: 'published' | 'draft';
 }
 
+export interface SiteConfig {
+  homeHeroImage: string;
+  homeTitle: string;
+  homeSubtitle: string;
+  homeQuote: string;
+}
+
 export interface AppData {
   cocktails: Cocktail[];
   theory: TheorySection[];
+  siteConfig: SiteConfig;
 }

@@ -1,5 +1,6 @@
+
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { AppData, Cocktail, TheorySection, Language } from './types';
+import { AppData, Cocktail, TheorySection, Language, SiteConfig } from './types';
 import { getInitialData } from './data';
 import { translations } from './translations';
 
@@ -18,6 +19,7 @@ interface AppContextType {
   addTheory: (theory: TheorySection) => void;
   updateTheory: (theory: TheorySection) => void;
   deleteTheory: (id: string) => void;
+  updateSiteConfig: (config: SiteConfig) => void;
   isDarkMode: boolean;
   toggleTheme: () => void;
 }
@@ -112,6 +114,14 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     }));
   };
 
+  // --- Site Config ---
+  const updateSiteConfig = (config: SiteConfig) => {
+    setData(prev => ({
+      ...prev,
+      siteConfig: config
+    }));
+  };
+
   return (
     <AppContext.Provider value={{
       data,
@@ -128,6 +138,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       addTheory,
       updateTheory,
       deleteTheory,
+      updateSiteConfig,
       isDarkMode,
       toggleTheme
     }}>
