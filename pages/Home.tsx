@@ -9,6 +9,7 @@ import EditModal, { EditField } from '../components/EditModal';
 const Home: React.FC = () => {
   const { t, data, isAdmin, updateSiteConfig, language } = useAppStore();
   const [featuredCocktail, setFeaturedCocktail] = useState<Cocktail | null>(null);
+  const [randomQuote, setRandomQuote] = useState(t.home.quotes[0]);
 
   // Edit Mode State
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -25,6 +26,14 @@ const Home: React.FC = () => {
         setFeaturedCocktail(randomC);
     }
   }, [data.cocktails]);
+
+  // Update quote when language changes
+  useEffect(() => {
+      const quotes = t.home.quotes;
+      if (quotes && quotes.length > 0) {
+          setRandomQuote(quotes[Math.floor(Math.random() * quotes.length)]);
+      }
+  }, [language, t]);
 
   useEffect(() => {
     setEditFormState(data.siteConfig);
@@ -50,7 +59,7 @@ const Home: React.FC = () => {
       { key: 'homeTitle', label: t.admin.config.heroTitle, type: 'text', value: editFormState.homeTitle },
       { key: 'homeSubtitle', label: t.admin.config.heroSubtitle, type: 'textarea', value: editFormState.homeSubtitle },
       { key: 'homeHeroImage', label: t.admin.config.heroImage, type: 'image', value: editFormState.homeHeroImage },
-      { key: 'homeQuote', label: t.admin.config.quote, type: 'textarea', value: editFormState.homeQuote },
+      // Removed quote edit field to enforce translation consistency
   ];
   
   return (
@@ -114,8 +123,8 @@ const Home: React.FC = () => {
            </div>
            <div className="container mx-auto px-6 relative z-10 flex flex-col items-center justify-center text-center">
                <Quote size={48} className="text-brand-orange mb-8 opacity-80" />
-               <p className="font-serif text-3xl md:text-5xl italic leading-tight max-w-4xl mx-auto">
-                  "{siteConfig.homeQuote || t.home.quotes[0]}"
+               <p className="font-serif text-3xl md:text-5xl italic leading-tight max-w-4xl mx-auto animate-fadeIn">
+                  "{randomQuote}"
                </p>
                <div className="mt-8 w-24 h-1 bg-gradient-to-r from-transparent via-brand-orange to-transparent opacity-50"></div>
            </div>

@@ -1,13 +1,16 @@
+
 import React, { useState } from 'react';
 import { useAppStore } from '../store';
 import CocktailCard from '../components/CocktailCard';
-import { Search, Filter, SlidersHorizontal } from 'lucide-react';
+import SkeletonCard from '../components/SkeletonCard';
+import { Search, Filter, SlidersHorizontal, Heart } from 'lucide-react';
 
 const Cocktails: React.FC = () => {
-  const { data, t } = useAppStore();
+  const { data, t, isLoading, favorites } = useAppStore();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterEra, setFilterEra] = useState<string>('All');
   const [filterCategory, setFilterCategory] = useState<string>('All');
+  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
 
   // Basic filtering logic
   const filteredCocktails = data.cocktails.filter(c => {
@@ -15,8 +18,9 @@ const Cocktails: React.FC = () => {
                           c.ingredients.some(i => i.name.toLowerCase().includes(searchTerm.toLowerCase()));
     const matchesEra = filterEra === 'All' || c.era === filterEra;
     const matchesCategory = filterCategory === 'All' || c.category === filterCategory;
+    const matchesFav = showFavoritesOnly ? favorites.includes(c.id) : true;
     const isVisible = c.status !== 'draft'; // Hide drafts from public view
-    return matchesSearch && matchesEra && matchesCategory && isVisible;
+    return matchesSearch && matchesEra && matchesCategory && matchesFav && isVisible;
   });
 
   const eras = ['All', ...Array.from(new Set(data.cocktails.map(c => c.era)))].sort();
@@ -45,7 +49,16 @@ const Cocktails: React.FC = () => {
                 </div>
                 
                 {/* Filters */}
-                <div className="flex gap-2 overflow-x-auto pb-2 md:pb-0 no-scrollbar">
+                <div className="flex gap-2 overflow-x-auto pb-2 md:pb-0 no-scrollbar items-center">
+                    
+                    {/* Favorites Toggle */}
+                    <button 
+                        onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
+                        className={`p-3 rounded-2xl flex items-center justify-center transition-all ${showFavoritesOnly ? 'bg-red-500 text-white shadow-lg' : 'bg-gray-50 dark:bg-black/50 text-gray-400 hover:text-red-500'}`}
+                    >
+                        <Heart size={20} className={showFavoritesOnly ? "fill-white" : ""} />
+                    </button>
+
                     <div className="relative min-w-[140px]">
                         <select
                             className="w-full appearance-none pl-4 pr-10 py-3 rounded-2xl bg-gray-50 dark:bg-black/50 border-none text-gray-700 dark:text-gray-300 focus:ring-2 focus:ring-brand-orange/50 cursor-pointer"
@@ -73,10 +86,14 @@ const Cocktails: React.FC = () => {
       </div>
 
       {/* Grid */}
-      {filteredCocktails.length > 0 ? (
+      {isLoading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {[...Array(8)].map((_, i) => <SkeletonCard key={i} />)}
+          </div>
+      ) : filteredCocktails.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {filteredCocktails.map(cocktail => (
-            <CocktailCard key={cocktail.id} cocktail={cocktail} />
+                <CocktailCard key={cocktail.id} cocktail={cocktail} />
             ))}
         </div>
       ) : (

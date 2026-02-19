@@ -8,25 +8,28 @@ import Cocktails from './pages/Cocktails';
 import Distillates from './pages/Distillates';
 import DistillateDetail from './pages/DistillateDetail';
 import Admin from './pages/Admin';
+import School from './pages/School';
+import Lab from './pages/Lab';
+import Tools from './pages/Tools';
 import ComingSoon from './pages/ComingSoon';
 import SharedCertificates from './pages/SharedCertificates';
+import Chatbot from './components/Chatbot';
 import { AppProvider, useAppStore } from './store';
 
-// Separated layout component to access the context
 const MainLayout: React.FC = () => {
   const { language } = useAppStore();
   const location = useLocation();
 
-  const isHomePage = location.pathname === '/';
   const isSharedPage = location.pathname.startsWith('/shared/');
-
-  // Reduced spacing for non-home pages as requested
-  const spacingClass = (isHomePage || isSharedPage) ? '' : 'pt-20 md:pt-24';
+  const isSchoolMode = location.pathname === '/school';
+  
+  // Dynamic padding based on route to handle full-screen experiences better
+  const spacingClass = (location.pathname === '/' || isSharedPage || isSchoolMode) ? '' : 'pt-20 md:pt-24';
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-black transition-colors duration-300">
       {!isSharedPage && <Navbar />}
-      {/* Key prop triggers re-render animation when language changes */}
+      
       <main className={`${!isSharedPage ? 'container mx-auto px-4 pb-12' : ''} ${spacingClass}`}>
         <div key={language} className="animate-fade-in">
           <Routes>
@@ -35,6 +38,9 @@ const MainLayout: React.FC = () => {
             <Route path="/cocktails" element={<Cocktails />} />
             <Route path="/distillates" element={<Distillates />} />
             <Route path="/distillates/:id" element={<DistillateDetail />} />
+            <Route path="/school" element={<School />} />
+            <Route path="/lab" element={<Lab />} />
+            <Route path="/tools" element={<Tools />} />
             <Route path="/admin" element={<Admin />} />
             <Route path="/coming-soon" element={<ComingSoon />} />
             <Route path="/shared/:id" element={<SharedCertificates />} />
@@ -42,6 +48,8 @@ const MainLayout: React.FC = () => {
           </Routes>
         </div>
       </main>
+
+      {!isSharedPage && <Chatbot />}
     </div>
   );
 };

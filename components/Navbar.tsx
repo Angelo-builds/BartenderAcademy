@@ -1,21 +1,13 @@
 
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Sun, Moon, User, Globe, Martini } from 'lucide-react';
+import { Menu, X, Sun, Moon, User, Martini, GraduationCap, BookOpen, FlaskConical, Sparkles, Calculator, Wine, LogIn, LogOut } from 'lucide-react';
 import { useAppStore } from '../store';
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { isDarkMode, toggleTheme, isAdmin, language, setLanguage, t } = useAppStore();
+  const { isDarkMode, toggleTheme, isAdmin, language, setLanguage, t, logout, user } = useAppStore();
   const location = useLocation();
-
-  const navLinks = [
-    { name: t.nav.home, path: '/' },
-    { name: t.nav.theory, path: '/theory' },
-    { name: t.nav.distillates, path: '/distillates' },
-    { name: t.nav.cocktails, path: '/cocktails' },
-    { name: t.nav.comingSoon, path: '/coming-soon' },
-  ];
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -23,104 +15,147 @@ const Navbar: React.FC = () => {
       setLanguage(language === 'it' ? 'en' : 'it');
   };
 
+  // Helper component for Nav Items
+  const NavItem = ({ to, icon: Icon, label, active }: { to: string, icon: any, label: string, active: boolean }) => (
+    <Link 
+        to={to} 
+        className={`relative flex items-center justify-center gap-2 px-3 py-2 rounded-full transition-all duration-300 
+        ${active ? 'bg-gray-100 dark:bg-white/10 text-brand-orange shadow-inner' : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/5'}`}
+    >
+        <Icon size={18} strokeWidth={active ? 2.5 : 2} />
+        {/* Text reveals on GROUP hover */}
+        <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[150px] group-hover:opacity-100 transition-all duration-500 ease-out whitespace-nowrap text-xs font-bold uppercase tracking-wide">
+            {label}
+        </span>
+    </Link>
+  );
+
+  // High contrast separator
+  const Separator = () => (
+    <div className="hidden md:block w-px h-6 bg-gray-300 dark:bg-gray-600 mx-2"></div>
+  );
+
   return (
     <>
-      <nav className="fixed top-4 left-0 right-0 z-50 flex justify-center px-4 pointer-events-none">
-        <div className="pointer-events-auto bg-white/80 dark:bg-black/90 backdrop-blur-xl border border-white/40 dark:border-white/10 dark:shadow-[0_0_15px_rgba(255,255,255,0.3)] rounded-full px-2 py-2 shadow-2xl shadow-black/5 transition-all duration-500 max-w-5xl w-full flex items-center justify-between">
+      <nav className="fixed top-6 left-0 right-0 z-50 flex justify-center px-4 pointer-events-none">
+        
+        {/* UNIFIED CONTAINER - Everything lives here now */}
+        <div className="pointer-events-auto bg-white/95 dark:bg-black/95 backdrop-blur-xl border border-white/20 dark:border-gray-700 shadow-2xl shadow-black/10 rounded-full p-1.5 flex items-center gap-1 transition-all duration-300 max-w-[calc(100vw-2rem)] overflow-x-auto no-scrollbar">
           
-          {/* Logo */}
-          <Link to="/" className="flex items-center gap-3 pl-4 pr-6 group">
-            <div className="relative flex items-center justify-center w-10 h-10 rounded-2xl bg-gradient-to-br from-brand-orange to-red-600 dark:from-blue-600 dark:to-night-azure shadow-lg shadow-orange-500/20 dark:shadow-blue-500/20 group-hover:shadow-orange-500/40 dark:group-hover:shadow-blue-500/40 transition-all duration-300 group-hover:scale-105 group-hover:rotate-3">
-                <Martini className="text-white w-5 h-5 -ml-0.5 group-hover:-rotate-12 transition-transform duration-300" strokeWidth={2.5} />
-                <div className="absolute top-2 right-2.5 w-1.5 h-1.5 bg-yellow-300 rounded-full animate-pulse"></div>
+          {/* 1. LOGO SECTION - Integrated but distinct */}
+          <Link to="/" className="flex items-center gap-3 pr-4 pl-1 rounded-full group mr-1 flex-shrink-0">
+             <div className="relative flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-brand-orange to-red-600 dark:from-blue-600 dark:to-night-azure shadow-lg shadow-orange-500/20 dark:shadow-blue-500/20 group-hover:scale-105 transition-transform">
+                <Martini className="text-white w-5 h-5 -ml-0.5" strokeWidth={2.5} />
             </div>
-            <div className="flex flex-col justify-center">
-                <span className="hidden sm:block text-gray-900 dark:text-white font-black text-lg leading-none tracking-tight group-hover:text-brand-orange dark:group-hover:text-night-azure transition-colors">
+            {/* Show text only on Large screens (lg) to save space on Medium (md) tablets/laptops */}
+            <div className="hidden lg:flex flex-col justify-center">
+                <span className="text-gray-900 dark:text-white font-black text-sm leading-none tracking-tight group-hover:text-brand-orange dark:group-hover:text-night-azure transition-colors">
                 BARTENDER
                 </span>
-                <span className="hidden sm:block text-[10px] font-bold text-gray-400 dark:text-night-azure uppercase tracking-[0.3em] leading-none transition-colors mt-0.5">
-                SCHOOL
+                <span className="text-[9px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-[0.25em] leading-none mt-0.5">
+                ACADEMY
                 </span>
             </div>
           </Link>
-          
-          {/* Desktop Links */}
+
+          {/* Major Divider after Logo */}
+          <div className="hidden md:block w-px h-8 bg-gray-300 dark:bg-gray-500 mx-2"></div>
+
+          {/* 2. MENU ITEMS (Desktop - MD breakpoint) */}
           <div className="hidden md:flex items-center gap-1">
-            {navLinks.map((link) => (
-              <Link
-                key={link.path}
-                to={link.path}
-                className={`relative px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
-                  isActive(link.path)
-                    ? 'text-white'
-                    : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-white/10'
-                }`}
-              >
-                {isActive(link.path) && (
-                    <span className="absolute inset-0 bg-gray-900 dark:bg-night-blue rounded-full -z-10 animate-scale-in shadow-sm"></span>
-                )}
-                {/* Text is handled by parent class, explicit span removed for cleaner DOM */}
-                <span>{link.name}</span>
-              </Link>
-            ))}
+              
+              {/* Theory Group */}
+              <div className="group flex items-center px-1">
+                  <NavItem to="/theory" icon={BookOpen} label={t.nav.theory} active={isActive('/theory')} />
+                  <NavItem to="/distillates" icon={FlaskConical} label={t.nav.distillates} active={isActive('/distillates')} />
+              </div>
+
+              <Separator />
+
+              {/* School Group */}
+              <div className="group flex items-center px-1">
+                   <NavItem to="/school" icon={GraduationCap} label={t.nav.training} active={isActive('/school')} />
+              </div>
+
+              <Separator />
+
+              {/* Practice Group */}
+              <div className="group flex items-center px-1">
+                  <NavItem to="/cocktails" icon={Wine} label={t.nav.cocktails} active={isActive('/cocktails')} />
+                  <NavItem to="/lab" icon={Sparkles} label={t.nav.lab} active={isActive('/lab')} />
+              </div>
+
+              <Separator />
+
+              {/* Tools Group */}
+              <div className="group flex items-center px-1">
+                  <NavItem to="/tools" icon={Calculator} label="Tools" active={isActive('/tools')} />
+              </div>
+
+              <Separator />
+
+              {/* Settings Group */}
+              <div className="group flex items-center px-1 gap-1">
+                 <button onClick={toggleLanguage} className="w-9 h-9 flex items-center justify-center rounded-full text-[10px] font-black text-gray-500 hover:bg-gray-100 dark:hover:bg-white/10 transition-all border border-transparent hover:border-gray-200 dark:hover:border-gray-700">
+                    {language === 'it' ? 'IT' : 'EN'}
+                 </button>
+                 <button onClick={toggleTheme} className="w-9 h-9 flex items-center justify-center rounded-full text-gray-500 hover:bg-gray-100 dark:hover:bg-white/10 transition-all border border-transparent hover:border-gray-200 dark:hover:border-gray-700">
+                     {isDarkMode ? <Sun size={16} /> : <Moon size={16} />}
+                 </button>
+              </div>
+
+              <Separator />
+
+              {/* User Group */}
+              <div className="group flex items-center px-1 pl-2">
+                 {user ? (
+                     <div className="flex items-center gap-2">
+                        <Link to="/admin" className={`w-9 h-9 flex items-center justify-center rounded-full transition-all border ${isAdmin ? 'bg-brand-orange text-white border-brand-orange' : 'text-gray-500 border-transparent hover:bg-gray-100'}`}>
+                            <User size={16} />
+                        </Link>
+                        <button onClick={logout} className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[100px] group-hover:opacity-100 transition-all duration-500 ease-out flex items-center gap-1 text-[10px] font-bold text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 px-3 py-1.5 rounded-full whitespace-nowrap">
+                            <LogOut size={12} /> {language === 'it' ? 'Esci' : 'Logout'}
+                        </button>
+                     </div>
+                 ) : (
+                    <Link to="/admin" className="w-9 h-9 flex items-center justify-center rounded-full text-gray-500 hover:bg-gray-100 dark:hover:bg-white/10 transition-all group-hover:text-brand-orange">
+                        <LogIn size={18} />
+                    </Link>
+                 )}
+              </div>
           </div>
 
-          {/* Actions */}
-          <div className="flex items-center gap-2 pl-4 pr-2">
+          {/* 3. MOBILE TOGGLE (Visible on SM and below) */}
+          <div className="md:hidden ml-auto pl-4">
              <button
-              onClick={toggleLanguage}
-              className="w-9 h-9 flex items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all hover:rotate-12"
-            >
-               <span key={language} className="text-xs font-black uppercase animate-slide-down">{language}</span>
-            </button>
-
-            <button
-              onClick={toggleTheme}
-              className="w-9 h-9 flex items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all active:scale-90"
-            >
-               <div key={isDarkMode ? 'dark' : 'light'} className="animate-scale-in">
-                 {isDarkMode ? <Sun size={16} /> : <Moon size={16} />}
-               </div>
-            </button>
-            
-            <Link 
-              to="/admin" 
-              className={`w-9 h-9 flex items-center justify-center rounded-full transition-all hover:scale-110 ${isAdmin ? 'bg-brand-orange dark:bg-night-blue text-white shadow-lg shadow-brand-orange/40 dark:shadow-blue-500/40' : 'bg-gray-100 dark:bg-gray-800 text-gray-400'}`}
-            >
-                 <User size={16} />
-            </Link>
-
-            {/* Mobile Menu Button */}
-            <div className="md:hidden ml-2">
-              <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="w-9 h-9 flex items-center justify-center rounded-full bg-gray-900 dark:bg-white text-white dark:text-black hover:opacity-80 transition-opacity"
+                className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white"
               >
-                {isOpen ? <X size={18} /> : <Menu size={18} />}
+                {isOpen ? <X size={20} /> : <Menu size={20} />}
               </button>
-            </div>
           </div>
+          
         </div>
       </nav>
 
       {/* Mobile Menu Overlay */}
       {isOpen && (
-        <div className="fixed inset-0 z-40 bg-white/95 dark:bg-black/95 backdrop-blur-xl animate-fadeIn pt-24 px-6 flex flex-col items-center">
-            {navLinks.map((link, idx) => (
-              <Link
-                key={link.path}
-                to={link.path}
-                onClick={() => setIsOpen(false)}
-                className={`w-full text-center py-4 text-2xl font-bold border-b border-gray-100 dark:border-gray-800 transition-all ${
-                   isActive(link.path)
-                      ? 'text-brand-orange dark:text-night-azure'
-                      : 'text-gray-900 dark:text-white'
-                }`}
-                style={{ animationDelay: `${idx * 50}ms` }}
-              >
-                {link.name}
-              </Link>
-            ))}
+        <div className="fixed inset-0 z-40 bg-white/95 dark:bg-black/95 backdrop-blur-xl animate-fadeIn pt-28 px-6 flex flex-col items-center gap-6 overflow-y-auto">
+            <Link to="/theory" onClick={() => setIsOpen(false)} className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-3"><BookOpen size={20} />{t.nav.theory}</Link>
+            <Link to="/distillates" onClick={() => setIsOpen(false)} className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-3"><FlaskConical size={20} />{t.nav.distillates}</Link>
+            <div className="w-12 h-px bg-gray-200 dark:bg-gray-800"></div>
+            <Link to="/school" onClick={() => setIsOpen(false)} className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-3"><GraduationCap size={20} />{t.nav.training}</Link>
+            <div className="w-12 h-px bg-gray-200 dark:bg-gray-800"></div>
+            <Link to="/cocktails" onClick={() => setIsOpen(false)} className="text-xl font-bold text-brand-orange flex items-center gap-3"><Wine size={20} />{t.nav.cocktails}</Link>
+            <Link to="/lab" onClick={() => setIsOpen(false)} className="text-xl font-bold text-purple-600 flex items-center gap-3"><Sparkles size={20} />{t.nav.lab}</Link>
+            <div className="w-full h-px bg-gray-200 dark:bg-gray-800 my-2"></div>
+            <Link to="/tools" onClick={() => setIsOpen(false)} className="text-lg font-bold text-gray-600 dark:text-gray-400 flex items-center gap-2"><Calculator size={20} /> Bar Tools</Link>
+            <button onClick={() => {toggleLanguage(); setIsOpen(false);}} className="text-lg font-bold text-gray-500">
+                {language === 'it' ? 'Lingua: Italiano' : 'Language: English'}
+            </button>
+            <Link to="/admin" onClick={() => setIsOpen(false)} className="text-lg font-bold text-gray-500 flex items-center gap-2">
+                 <User size={20} /> {user ? (language === 'it' ? 'Area Admin' : 'Admin Area') : (language === 'it' ? 'Login' : 'Login')}
+            </Link>
         </div>
       )}
     </>

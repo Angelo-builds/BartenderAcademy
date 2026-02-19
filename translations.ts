@@ -5,11 +5,15 @@ export const translations = {
   it: {
     nav: {
       home: 'Home',
+      manual: 'Manuale',
       theory: 'Teoria',
-      cocktails: 'Cocktail',
+      cocktails: 'Ricettario',
       distillates: 'Distillati',
-      comingSoon: 'Altro',
-      admin: 'Admin'
+      training: 'Accademia',
+      lab: 'AI Lab',
+      admin: 'Admin',
+      login: 'Accedi',
+      logout: 'Esci'
     },
     home: {
       welcome: 'Accademia del Bar',
@@ -53,6 +57,34 @@ export const translations = {
       title: 'Distillati & Liquori',
       subtitle: 'Esplora le origini, i metodi di produzione e le caratteristiche dei migliori spiriti del mondo.',
       readMore: 'Vedi altro'
+    },
+    lab: {
+        title: 'Laboratorio AI',
+        subtitle: 'Sperimenta, crea e scopri abbinamenti perfetti con l\'assistenza dell\'intelligenza artificiale.',
+        tabs: {
+            create: 'Creatore',
+            twist: 'Twist & Varianti',
+            pair: 'Sommelier'
+        },
+        create: {
+            base: 'Base Alcolica',
+            mood: 'Stile del Drink',
+            type: 'Tipologia',
+            extra: 'Ingredienti Extra',
+            btn: 'Inventa Drink'
+        },
+        twist: {
+            select: 'Seleziona un Classico',
+            btn: 'Genera Varianti'
+        },
+        pair: {
+            mode: 'Modalità',
+            foodToDrink: 'Ho il Cibo -> Cerco il Drink',
+            drinkToFood: 'Ho il Drink -> Cerco il Cibo',
+            inputFood: 'Descrivi il piatto (es. Carbonara, Cheesecake...)',
+            inputDrink: 'Descrivi il drink (es. Negroni, vino rosso...)',
+            btn: 'Trova Abbinamento'
+        }
     },
     comingSoonPage: {
         badge: 'In Sviluppo',
@@ -162,11 +194,15 @@ export const translations = {
   en: {
     nav: {
       home: 'Home',
+      manual: 'Handbook',
       theory: 'Theory',
-      cocktails: 'Cocktails',
+      cocktails: 'Recipes',
       distillates: 'Spirits',
-      comingSoon: 'More',
-      admin: 'Admin'
+      training: 'Academy',
+      lab: 'AI Lab',
+      admin: 'Admin',
+      login: 'Login',
+      logout: 'Logout'
     },
     home: {
       welcome: 'Bar Academy',
@@ -210,6 +246,34 @@ export const translations = {
       title: 'Spirits & Liqueurs',
       subtitle: 'Explore the origins, production methods, and characteristics of the world\'s finest spirits.',
       readMore: 'See more'
+    },
+    lab: {
+        title: 'AI Laboratory',
+        subtitle: 'Experiment, create, and discover perfect pairings with AI assistance.',
+        tabs: {
+            create: 'Creator',
+            twist: 'Twist & Variants',
+            pair: 'Sommelier'
+        },
+        create: {
+            base: 'Base Spirit',
+            mood: 'Drink Style',
+            type: 'Type',
+            extra: 'Extra Ingredients',
+            btn: 'Invent Drink'
+        },
+        twist: {
+            select: 'Select a Classic',
+            btn: 'Generate Variants'
+        },
+        pair: {
+            mode: 'Mode',
+            foodToDrink: 'Have Food -> Need Drink',
+            drinkToFood: 'Have Drink -> Need Food',
+            inputFood: 'Describe the dish (e.g., Pasta, Steak...)',
+            inputDrink: 'Describe the drink (e.g., Negroni, Red Wine...)',
+            btn: 'Find Pairing'
+        }
     },
     comingSoonPage: {
         badge: 'Work in Progress',
