@@ -1,6 +1,7 @@
 
-import React, { useRef } from 'react';
-import { X, Upload, Save } from 'lucide-react';
+import React, { useRef, useState } from 'react';
+import { X, Upload, Save, Loader } from 'lucide-react';
+import { useAppStore } from '../store';
 
 export interface EditField {
     key: string;
@@ -20,17 +21,21 @@ interface EditModalProps {
 
 const EditModal: React.FC<EditModalProps> = ({ isOpen, onClose, onSave, title, fields, onChange }) => {
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const { uploadImage } = useAppStore();
+    const [isUploading, setIsUploading] = useState(false);
 
     if (!isOpen) return null;
 
-    const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, fieldKey: string) => {
+    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, fieldKey: string) => {
         const file = e.target.files?.[0];
         if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                onChange(fieldKey, reader.result as string);
-            };
-            reader.readAsDataURL(file);
+            setIsUploading(true);
+            const publicUrl = await uploadImage(file);
+            setIsUploading(false);
+            
+            if (publicUrl) {
+                onChange(fieldKey, publicUrl);
+            }
         }
     };
 
@@ -100,13 +105,14 @@ const EditModal: React.FC<EditModalProps> = ({ isOpen, onClose, onSave, title, f
                                                     onChange={(e) => handleFileUpload(e, field.key)} 
                                                     className="hidden" 
                                                     accept="image/*" 
+                                                    disabled={isUploading}
                                                 />
                                                 <button 
                                                     type="button"
                                                     onClick={() => fileInputRef.current?.click()}
-                                                    className="p-3 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded-xl transition-colors text-gray-700 dark:text-white"
+                                                    className={`p-3 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded-xl transition-colors text-gray-700 dark:text-white ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}
                                                 >
-                                                    <Upload size={20} />
+                                                    {isUploading ? <Loader size={20} className="animate-spin" /> : <Upload size={20} />}
                                                 </button>
                                             </div>
                                         </div>
@@ -127,9 +133,10 @@ const EditModal: React.FC<EditModalProps> = ({ isOpen, onClose, onSave, title, f
                     <button 
                         type="submit" 
                         form="edit-modal-form"
-                        className="w-full py-4 bg-brand-orange text-white rounded-xl font-bold text-lg shadow-lg hover:bg-brand-red hover:scale-[1.01] active:scale-[0.99] transition-all flex items-center justify-center gap-2"
+                        disabled={isUploading}
+                        className="w-full py-4 bg-brand-orange text-white rounded-xl font-bold text-lg shadow-lg hover:bg-brand-red hover:scale-[1.01] active:scale-[0.99] transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                        <Save size={20} /> Save Changes
+                        {isUploading ? <Loader size={20} className="animate-spin" /> : <Save size={20} />} Save Changes
                     </button>
                 </div>
             </div>

@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Cocktail } from '../types';
-import { Wine, ImageOff, Pencil, Heart } from 'lucide-react';
+import { Wine, Pencil, Heart, Martini, GlassWater, Beer, Coffee } from 'lucide-react';
 import { useAppStore } from '../store';
 import { useNavigate } from 'react-router-dom';
 
@@ -30,25 +30,100 @@ const CocktailCard: React.FC<Props> = ({ cocktail }) => {
   };
 
   const handleImageError = () => {
-      const normalize = (str: string) => str.normalize("NFD").replace(/[\u0300-\u036f]/g, ""); 
-      const filename = normalize(cocktail.name).toLowerCase().trim().replace(/[^a-z0-9]/g, '-');
-      const fallbackPath = `/images/${filename}.jpg`;
-      if (imgSrc !== fallbackPath) setImgSrc(fallbackPath);
-      else setImageError(true);
+      // Logic to try local file first, then fail to placeholder
+      if (imgSrc && imgSrc.startsWith('http')) {
+          const normalize = (str: string) => str.normalize("NFD").replace(/[\u0300-\u036f]/g, ""); 
+          const filename = normalize(cocktail.name).toLowerCase().trim().replace(/[^a-z0-9]/g, '-');
+          const fallbackPath = `/images/${filename}.jpg`;
+          setImgSrc(fallbackPath);
+      } else {
+          setImageError(true);
+      }
   };
+
+  // Helper to get dynamic icon and color based on glass type
+  const getPlaceholderVisuals = (glassType: string) => {
+      const lower = glassType.toLowerCase();
+      
+      if (lower.includes('martini') || lower.includes('coppa') || lower.includes('coupe') || lower.includes('margarita')) {
+          return { 
+              icon: <Martini size={80} strokeWidth={1} className="drop-shadow-lg text-white opacity-90" />, 
+              bg: 'bg-gradient-to-br from-purple-500 to-indigo-600' 
+          };
+      }
+      if (lower.includes('highball') || lower.includes('collins') || lower.includes('alto') || lower.includes('hurricane')) {
+          return { 
+              icon: <GlassWater size={80} strokeWidth={1} className="drop-shadow-lg text-white opacity-90 scale-y-125" />, 
+              bg: 'bg-gradient-to-br from-blue-400 to-cyan-600' 
+          };
+      }
+      if (lower.includes('old') || lower.includes('basso') || lower.includes('rock') || lower.includes('whiskey')) {
+          return { 
+              icon: <GlassWater size={80} strokeWidth={1} className="drop-shadow-lg text-white opacity-90" />, 
+              bg: 'bg-gradient-to-br from-orange-400 to-amber-600' 
+          };
+      }
+      if (lower.includes('mule') || lower.includes('mug') || lower.includes('tiki')) {
+          return { 
+              icon: <Beer size={80} strokeWidth={1} className="drop-shadow-lg text-white opacity-90" />, 
+              bg: 'bg-gradient-to-br from-emerald-500 to-teal-700' 
+          };
+      }
+      if (lower.includes('flute') || lower.includes('wine') || lower.includes('vino') || lower.includes('calice')) {
+          return { 
+              icon: <Wine size={80} strokeWidth={1} className="drop-shadow-lg text-white opacity-90" />, 
+              bg: 'bg-gradient-to-br from-rose-400 to-pink-600' 
+          };
+      }
+      if (lower.includes('coffee') || lower.includes('hot') || lower.includes('irish')) {
+           return { 
+              icon: <Coffee size={80} strokeWidth={1} className="drop-shadow-lg text-white opacity-90" />, 
+              bg: 'bg-gradient-to-br from-stone-500 to-stone-700' 
+          };
+      }
+      
+      // Default
+      return { 
+          icon: <GlassWater size={80} strokeWidth={1} className="drop-shadow-lg text-white opacity-90" />, 
+          bg: 'bg-gradient-to-br from-slate-400 to-slate-600' 
+      };
+  };
+
+  const placeholder = getPlaceholderVisuals(cocktail.glass);
 
   return (
     <div className="group relative bg-white dark:bg-gray-900 rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-300 border border-gray-100 dark:border-gray-800 flex flex-col h-full">
-      <div className="relative h-64 overflow-hidden bg-gray-100 dark:bg-gray-800">
-          {!imageLoaded && !imageError && (
-              <div className="absolute inset-0 flex items-center justify-center z-0 bg-gray-200 dark:bg-gray-800 animate-pulse"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-orange"></div></div>
+      <div className={`relative h-64 overflow-hidden ${!cocktail.image || imageError ? placeholder.bg : 'bg-gray-100 dark:bg-gray-800'}`}>
+          
+          {/* Loading State */}
+          {!imageLoaded && !imageError && cocktail.image && (
+              <div className="absolute inset-0 flex items-center justify-center z-0 bg-gray-200 dark:bg-gray-800 animate-pulse">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-orange"></div>
+              </div>
           )}
-          {imageError ? (
-              <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-400 bg-gray-100 dark:bg-gray-800"><ImageOff size={32} className="mb-2" /><span className="text-xs">No Image</span></div>
+
+          {/* Actual Image or Fallback Icon */}
+          {(!cocktail.image || imageError) ? (
+              <div className="absolute inset-0 flex flex-col items-center justify-center p-6 transition-transform duration-700 group-hover:scale-110">
+                  {placeholder.icon}
+                  <span className="mt-4 text-white/80 text-xs font-bold uppercase tracking-widest border border-white/30 px-3 py-1 rounded-full backdrop-blur-sm">
+                      {cocktail.glass}
+                  </span>
+              </div>
           ) : (
-              <img src={imgSrc} alt={cocktail.name} className={`w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700 ease-out z-10 relative`} onLoad={() => setImageLoaded(true)} onError={handleImageError} loading="lazy" referrerPolicy="no-referrer" />
+              <img 
+                src={imgSrc} 
+                alt={cocktail.name} 
+                className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700 ease-out z-10 relative" 
+                onLoad={() => setImageLoaded(true)} 
+                onError={handleImageError} 
+                loading="lazy" 
+                referrerPolicy="no-referrer" 
+              />
           )}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-90 z-20"></div>
+
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-90 z-20 pointer-events-none"></div>
+          
           {cocktail.status === 'coming_soon' && <div className="absolute top-4 right-4 bg-yellow-400 text-black text-xs font-bold px-3 py-1 rounded-full z-30 shadow-lg">{t.common.comingSoon}</div>}
           
           {/* Action Buttons */}
@@ -67,7 +142,7 @@ const CocktailCard: React.FC<Props> = ({ cocktail }) => {
           </button>
 
 
-          <div className="absolute bottom-4 left-4 right-4 text-white z-30">
+          <div className="absolute bottom-4 left-4 right-4 text-white z-30 pointer-events-none">
               <h3 className="text-2xl font-bold tracking-tight text-shadow-sm">{cocktail.name}</h3>
               <p className="text-white/80 text-sm font-medium mt-1">{cocktail.category}</p>
           </div>

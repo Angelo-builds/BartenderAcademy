@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useAppStore } from '../store';
 import { Certificate } from '../types';
-import { Award, Calendar, AlertCircle, X, ZoomIn } from 'lucide-react';
+import { Award, Calendar, AlertCircle, X, ZoomIn, FileText } from 'lucide-react';
 
 const SharedCertificates: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -89,11 +89,19 @@ const SharedCertificates: React.FC = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         {certs.map(cert => (
                             <div key={cert.id} className="bg-white dark:bg-gray-900 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-shadow border border-gray-100 dark:border-gray-800 group">
-                                <div className="relative aspect-[4/3] bg-gray-100 dark:bg-black overflow-hidden cursor-pointer" onClick={() => setSelectedImage(cert.image)}>
-                                    <img src={cert.image} alt={cert.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-                                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
-                                        <ZoomIn className="text-white drop-shadow-md" size={32} />
-                                    </div>
+                                <div className="relative aspect-[4/3] bg-gray-100 dark:bg-black overflow-hidden cursor-pointer" onClick={() => cert.image && setSelectedImage(cert.image)}>
+                                    {cert.image ? (
+                                        <>
+                                            <img src={cert.image} alt={cert.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
+                                                <ZoomIn className="text-white drop-shadow-md" size={32} />
+                                            </div>
+                                        </>
+                                    ) : (
+                                        <div className="w-full h-full flex items-center justify-center bg-gray-50 dark:bg-gray-800 text-gray-300 dark:text-gray-700">
+                                            <Award size={64} />
+                                        </div>
+                                    )}
                                 </div>
                                 <div className="p-6">
                                     <div className="flex items-center gap-2 text-xs font-bold text-brand-orange uppercase tracking-wider mb-2">

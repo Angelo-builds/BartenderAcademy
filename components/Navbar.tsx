@@ -106,20 +106,39 @@ const Navbar: React.FC = () => {
 
               <Separator />
 
-              {/* User Group */}
-              <div className="group flex items-center px-1 pl-2">
+              {/* User Group - Adjusted padding for centering */}
+              <div className="group flex items-center px-1">
                  {user ? (
-                     <div className="flex items-center gap-2">
-                        <Link to="/admin" className={`w-9 h-9 flex items-center justify-center rounded-full transition-all border ${isAdmin ? 'bg-brand-orange text-white border-brand-orange' : 'text-gray-500 border-transparent hover:bg-gray-100'}`}>
-                            <User size={16} />
+                     <div className="flex items-center gap-1">
+                        <Link 
+                            to="/admin" 
+                            className={`relative flex items-center justify-center h-10 w-10 px-0 rounded-full transition-all duration-300 group-hover:w-auto group-hover:px-3
+                            ${isActive('/admin') ? 'bg-brand-orange text-white' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5'}`}
+                        >
+                            <User size={18} className="flex-shrink-0" />
+                            <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[150px] group-hover:opacity-100 transition-all duration-500 ease-out whitespace-nowrap text-xs font-bold uppercase tracking-wide ml-0 group-hover:ml-2">
+                                Admin
+                            </span>
                         </Link>
-                        <button onClick={logout} className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[100px] group-hover:opacity-100 transition-all duration-500 ease-out flex items-center gap-1 text-[10px] font-bold text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 px-3 py-1.5 rounded-full whitespace-nowrap">
-                            <LogOut size={12} /> {language === 'it' ? 'Esci' : 'Logout'}
+                        <button 
+                            onClick={logout} 
+                            className="relative flex items-center justify-center h-10 w-10 px-0 rounded-full transition-all duration-300 group-hover:w-auto group-hover:px-3 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20"
+                        >
+                            <LogOut size={18} className="flex-shrink-0" />
+                            <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[150px] group-hover:opacity-100 transition-all duration-500 ease-out whitespace-nowrap text-xs font-bold uppercase tracking-wide ml-0 group-hover:ml-2">
+                                {language === 'it' ? 'Esci' : 'Logout'}
+                            </span>
                         </button>
                      </div>
                  ) : (
-                    <Link to="/admin" className="w-9 h-9 flex items-center justify-center rounded-full text-gray-500 hover:bg-gray-100 dark:hover:bg-white/10 transition-all group-hover:text-brand-orange">
-                        <LogIn size={18} />
+                    <Link 
+                        to="/admin" 
+                        className="relative flex items-center justify-center h-10 w-10 px-0 rounded-full transition-all duration-300 group-hover:w-auto group-hover:px-3 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/5"
+                    >
+                        <LogIn size={18} className="flex-shrink-0" />
+                        <span className="max-w-0 overflow-hidden opacity-0 group-hover:max-w-[150px] group-hover:opacity-100 transition-all duration-500 ease-out whitespace-nowrap text-xs font-bold uppercase tracking-wide ml-0 group-hover:ml-2">
+                            {language === 'it' ? 'Accedi' : 'Login'}
+                        </span>
                     </Link>
                  )}
               </div>
@@ -153,9 +172,20 @@ const Navbar: React.FC = () => {
             <button onClick={() => {toggleLanguage(); setIsOpen(false);}} className="text-lg font-bold text-gray-500">
                 {language === 'it' ? 'Lingua: Italiano' : 'Language: English'}
             </button>
-            <Link to="/admin" onClick={() => setIsOpen(false)} className="text-lg font-bold text-gray-500 flex items-center gap-2">
-                 <User size={20} /> {user ? (language === 'it' ? 'Area Admin' : 'Admin Area') : (language === 'it' ? 'Login' : 'Login')}
-            </Link>
+            {user ? (
+               <>
+                 <Link to="/admin" onClick={() => setIsOpen(false)} className="text-lg font-bold text-gray-500 flex items-center gap-2">
+                    <User size={20} /> Admin Dashboard
+                 </Link>
+                 <button onClick={() => {logout(); setIsOpen(false);}} className="text-lg font-bold text-red-500 flex items-center gap-2">
+                    <LogOut size={20} /> {language === 'it' ? 'Esci' : 'Logout'}
+                 </button>
+               </>
+            ) : (
+                <Link to="/admin" onClick={() => setIsOpen(false)} className="text-lg font-bold text-gray-500 flex items-center gap-2">
+                     <LogIn size={20} /> {language === 'it' ? 'Accedi' : 'Login'}
+                </Link>
+            )}
         </div>
       )}
     </>
