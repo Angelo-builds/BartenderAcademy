@@ -56,7 +56,8 @@ const siteConfig_IT: SiteConfig = {
   theorySubtitle: 'Linee guida tecniche, setup della station e standard di servizio professionali.',
   distillatesHeroImage: 'https://images.unsplash.com/photo-1470337458703-46ad1756a187?auto=format&fit=crop&w=2000&q=80',
   distillatesTitle: 'Distillati & Liquori',
-  distillatesSubtitle: 'Esplora le origini, i metodi di produzione e le caratteristiche dei migliori spiriti del mondo.'
+  distillatesSubtitle: 'Esplora le origini, i metodi di produzione e le caratteristiche dei migliori spiriti del mondo.',
+  ollamaUrl: 'http://localhost:11434/api/chat' // Default to localhost, manageable via Admin
 };
 
 // Site Config - English
@@ -71,7 +72,8 @@ const siteConfig_EN: SiteConfig = {
   theorySubtitle: 'Technical guidelines, station setup, and professional service standards.',
   distillatesHeroImage: 'https://images.unsplash.com/photo-1470337458703-46ad1756a187?auto=format&fit=crop&w=2000&q=80',
   distillatesTitle: 'Spirits & Liqueurs',
-  distillatesSubtitle: 'Explore the origins, production methods, and characteristics of the world\'s finest spirits.'
+  distillatesSubtitle: 'Explore the origins, production methods, and characteristics of the world\'s finest spirits.',
+  ollamaUrl: 'http://localhost:11434/api/chat'
 };
 
 // ITALIAN DATA

@@ -27,7 +27,8 @@ CREATE TABLE IF NOT EXISTS site_config (
   "theorySubtitle" text,
   "distillatesHeroImage" text,
   "distillatesTitle" text,
-  "distillatesSubtitle" text
+  "distillatesSubtitle" text,
+  "ollamaUrl" text -- NEW: Dynamic URL for Ollama LXC
 );
 
 CREATE TABLE IF NOT EXISTS cocktails (

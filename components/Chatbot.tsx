@@ -21,8 +21,8 @@ const Chatbot: React.FC = () => {
     const [isThinking, setIsThinking] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
-    // CONFIGURAZIONE OLLAMA
-    const OLLAMA_URL = 'http://localhost:11434/api/chat';
+    // CONFIGURAZIONE OLLAMA (Dinamica)
+    const OLLAMA_URL = data.siteConfig.ollamaUrl || 'http://localhost:11434/api/chat';
     const OLLAMA_MODEL = 'llama3'; // Cambia con 'mistral', 'gemma:2b', etc.
 
     const scrollToBottom = () => {
@@ -72,7 +72,7 @@ const Chatbot: React.FC = () => {
             });
 
             if (!response.ok) {
-                throw new Error("Ollama non risponde. Assicurati che 'ollama serve' sia attivo.");
+                throw new Error("Ollama non risponde. Assicurati che l'URL nelle impostazioni Admin sia corretto e raggiungibile.");
             }
 
             const dataResponse = await response.json();
@@ -82,7 +82,7 @@ const Chatbot: React.FC = () => {
 
         } catch (error) {
             console.error("Errore Ollama:", error);
-            setMessages(prev => [...prev, { role: 'model', text: "Errore: Non riesco a contattare Ollama su localhost:11434. Assicurati di aver lanciato 'OLLAMA_ORIGINS=\"*\" ollama serve'." }]);
+            setMessages(prev => [...prev, { role: 'model', text: `Errore: Impossibile contattare Ollama su ${OLLAMA_URL}. Controlla la configurazione in Admin.` }]);
         } finally {
             setIsThinking(false);
         }

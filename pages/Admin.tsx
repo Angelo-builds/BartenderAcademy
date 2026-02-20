@@ -399,6 +399,21 @@ const Admin: React.FC = () => {
                                     <label className="text-xs font-bold uppercase text-gray-400">Titolo Distillati</label>
                                     <input className="w-full p-3 bg-gray-50 dark:bg-black/50 rounded-xl border-none outline-none dark:text-white" value={configForm.distillatesTitle || ''} onChange={e => setConfigForm({...configForm, distillatesTitle: e.target.value})} />
                                 </div>
+                                {/* NEW: OLLAMA CONFIGURATION */}
+                                <h3 className="text-lg font-bold text-gray-500 uppercase tracking-wider border-b border-gray-100 dark:border-gray-800 pb-2 pt-4">Integrazioni AI</h3>
+                                <div className="space-y-2">
+                                    <label className="text-xs font-bold uppercase text-brand-orange">Ollama Server URL</label>
+                                    <input 
+                                        className="w-full p-3 bg-gray-50 dark:bg-black/50 rounded-xl border-none outline-none dark:text-white font-mono text-sm" 
+                                        value={configForm.ollamaUrl || 'http://localhost:11434/api/chat'} 
+                                        onChange={e => setConfigForm({...configForm, ollamaUrl: e.target.value})} 
+                                        placeholder="http://192.168.1.XX:11434/api/chat"
+                                    />
+                                    <p className="text-[10px] text-gray-400">
+                                        Per Proxmox/LXC: Inserisci l'IP del container Ollama (es. http://192.168.1.20:11434/api/chat).
+                                        Assicurati che Ollama sia avviato con OLLAMA_HOST=0.0.0.0
+                                    </p>
+                                </div>
                             </div>
                         </div>
 

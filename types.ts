@@ -58,6 +58,7 @@ export interface SiteConfig {
   distillatesHeroImage?: string;
   distillatesTitle?: string;
   distillatesSubtitle?: string;
+  ollamaUrl?: string; // New field for dynamic Ollama connection
 }
 
 export interface AppData {
