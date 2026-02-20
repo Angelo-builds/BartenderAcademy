@@ -1,7 +1,6 @@
 
 import React, { useState } from 'react';
-import { Sparkles, Utensils, RefreshCw, ChefHat, ArrowRight, Zap, Repeat, Search } from 'lucide-react';
-import { GoogleGenAI } from "@google/genai";
+import { Sparkles, Utensils, RefreshCw, ChefHat, ArrowRight, Zap, Repeat, Search, AlertTriangle } from 'lucide-react';
 import { useAppStore } from '../store';
 
 type LabMode = 'create' | 'twist' | 'pair';
@@ -11,6 +10,7 @@ const Lab: React.FC = () => {
     const [activeMode, setActiveMode] = useState<LabMode>('create');
     const [isLoading, setIsLoading] = useState(false);
     const [result, setResult] = useState<{title: string, content: string, extra?: string} | null>(null);
+    const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
     // Inputs for Creator
     const [baseSpirit, setBaseSpirit] = useState('Gin');
@@ -28,59 +28,84 @@ const Lab: React.FC = () => {
     const generate = async () => {
         setIsLoading(true);
         setResult(null);
+        setErrorMsg(null);
         
+        // CONFIGURAZIONE OLLAMA
+        const OLLAMA_URL = data.siteConfig.ollamaUrl || 'http://localhost:11434/api/chat';
+        const OLLAMA_MODEL = 'llama3'; 
+
         try {
-            const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-            let prompt = '';
+            let userPrompt = '';
+            let systemPrompt = `Sei un mixologist di fama mondiale ed esperto sommelier. 
+            Devi rispondere ESCLUSIVAMENTE in formato JSON valido. Non aggiungere testo prima o dopo il JSON.
+            Il JSON deve avere questa struttura esatta:
+            {
+                "title": "Titolo breve",
+                "content": "Descrizione dettagliata o ricetta",
+                "extra": "Un consiglio o curiosità breve"
+            }`;
 
             if (activeMode === 'create') {
-                prompt = `Agisci come un mixologist di fama mondiale. Crea un nuovo drink.
+                userPrompt = `Crea un nuovo drink.
                 Tipo: ${drinkType}. Base: ${baseSpirit}. Mood: ${mood}. Extra: ${ingredients}.
                 
-                Rispondi SOLO in JSON:
-                {
-                    "title": "Nome del Drink (Inventato)",
-                    "content": "Ricetta completa (Ingredienti e Metodo) e descrizione del sapore.",
-                    "extra": "Consiglio per la garnish."
-                }`;
+                Nel campo "content" metti la ricetta completa (Ingredienti e Metodo) e descrizione del sapore.`;
             } else if (activeMode === 'twist') {
                  // Get classic recipe details from DB if possible
                 const classic = data.cocktails.find(c => c.name === selectedClassic);
                 const classicContext = classic ? `(Ricetta originale: ${classic.ingredients.map(i => i.name).join(', ')})` : '';
 
-                prompt = `Agisci come un mixologist creativo. Proponi 3 variazioni (twist) innovative per il cocktail: ${selectedClassic} ${classicContext}.
-                
-                Rispondi SOLO in JSON:
-                {
-                    "title": "3 Twist su ${selectedClassic}",
-                    "content": "Elenco puntato delle 3 varianti con breve spiegazione delle modifiche.",
-                    "extra": "Quale delle 3 è la più adatta per un pubblico moderno."
-                }`;
+                userPrompt = `Proponi 3 variazioni (twist) innovative per il cocktail: ${selectedClassic} ${classicContext}.
+                Nel campo "title" scrivi "3 Twist su ${selectedClassic}".
+                Nel campo "content" fai un elenco puntato delle 3 varianti.
+                Nel campo "extra" scrivi quale delle 3 è la più moderna.`;
             } else if (activeMode === 'pair') {
                 const direction = pairingMode === 'foodToDrink' ? `Ho questo piatto: "${pairingInput}". Consigliami il drink perfetto.` : `Ho questo drink: "${pairingInput}". Consigliami il piatto perfetto.`;
-                prompt = `Agisci come un Sommelier esperto. ${direction}
-                Spiega il perché dell'abbinamento (contrasto o concordanza).
-                
-                Rispondi SOLO in JSON:
-                {
-                    "title": "L'Abbinamento Perfetto",
-                    "content": "Descrizione dell'abbinamento e spiegazione tecnica.",
-                    "extra": "Un'alternativa più audace."
-                }`;
+                userPrompt = `${direction} Spiega il perché dell'abbinamento (contrasto o concordanza).`;
             }
 
-            const response = await ai.models.generateContent({
-                model: 'gemini-2.5-flash-latest',
-                contents: [{ role: 'user', parts: [{ text: prompt }] }],
-                config: { responseMimeType: 'application/json' }
+            // Chiamata a Ollama
+            const response = await fetch(OLLAMA_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    model: OLLAMA_MODEL,
+                    format: "json", // Forza output JSON (supportato da Llama3)
+                    stream: false,
+                    messages: [
+                        { role: 'system', content: systemPrompt },
+                        { role: 'user', content: userPrompt }
+                    ]
+                })
             });
-            
-            if (response.text) {
-               setResult(JSON.parse(response.text));
+
+            if (!response.ok) {
+                throw new Error("Errore di connessione con Ollama.");
             }
-        } catch (e) {
+
+            const dataResponse = await response.json();
+            const rawContent = dataResponse.message?.content;
+
+            if (rawContent) {
+                try {
+                    const parsed = JSON.parse(rawContent);
+                    setResult(parsed);
+                } catch (jsonError) {
+                    console.error("JSON Parsing Error:", jsonError);
+                    // Fallback se il JSON è rotto
+                    setResult({
+                        title: "Risultato Grezzo",
+                        content: rawContent,
+                        extra: "L'AI non ha formattato perfettamente il JSON."
+                    });
+                }
+            } else {
+                throw new Error("Nessuna risposta dal modello.");
+            }
+
+        } catch (e: any) {
             console.error(e);
-            alert("Il Barman AI è momentaneamente occupato. Riprova!");
+            setErrorMsg(`Errore: ${e.message}. Assicurati che Ollama sia attivo su ${OLLAMA_URL} e configurato con OLLAMA_ORIGINS="*"`);
         } finally {
             setIsLoading(false);
         }
@@ -89,19 +114,19 @@ const Lab: React.FC = () => {
     const renderModeSelector = () => (
         <div className="grid grid-cols-3 gap-4 mb-12 bg-white dark:bg-gray-900 p-2 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm">
             <button 
-                onClick={() => { setActiveMode('create'); setResult(null); }}
+                onClick={() => { setActiveMode('create'); setResult(null); setErrorMsg(null); }}
                 className={`py-3 px-4 rounded-xl font-bold flex flex-col md:flex-row items-center justify-center gap-2 transition-all ${activeMode === 'create' ? 'bg-purple-600 text-white shadow-lg' : 'text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800'}`}
             >
                 <Zap size={20} /> <span className="text-xs md:text-sm">{t.lab.tabs.create}</span>
             </button>
             <button 
-                onClick={() => { setActiveMode('twist'); setResult(null); }}
+                onClick={() => { setActiveMode('twist'); setResult(null); setErrorMsg(null); }}
                 className={`py-3 px-4 rounded-xl font-bold flex flex-col md:flex-row items-center justify-center gap-2 transition-all ${activeMode === 'twist' ? 'bg-brand-orange text-white shadow-lg' : 'text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800'}`}
             >
                 <Repeat size={20} /> <span className="text-xs md:text-sm">{t.lab.tabs.twist}</span>
             </button>
             <button 
-                onClick={() => { setActiveMode('pair'); setResult(null); }}
+                onClick={() => { setActiveMode('pair'); setResult(null); setErrorMsg(null); }}
                 className={`py-3 px-4 rounded-xl font-bold flex flex-col md:flex-row items-center justify-center gap-2 transition-all ${activeMode === 'pair' ? 'bg-green-600 text-white shadow-lg' : 'text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800'}`}
             >
                 <Utensils size={20} /> <span className="text-xs md:text-sm">{t.lab.tabs.pair}</span>
@@ -196,14 +221,23 @@ const Lab: React.FC = () => {
                 </div>
 
                 {/* Output Panel */}
-                <div className={`relative min-h-[500px] flex flex-col ${!result && !isLoading ? 'justify-center items-center opacity-50' : ''}`}>
+                <div className={`relative min-h-[500px] flex flex-col ${!result && !isLoading && !errorMsg ? 'justify-center items-center opacity-50' : ''}`}>
+                    
+                    {errorMsg && (
+                        <div className="bg-red-50 dark:bg-red-900/20 p-6 rounded-3xl border border-red-100 dark:border-red-900/30 text-center animate-slideDown w-full">
+                            <AlertTriangle className="mx-auto text-red-500 mb-2" size={32} />
+                            <h3 className="text-red-700 dark:text-red-300 font-bold mb-1">Errore AI</h3>
+                            <p className="text-sm text-red-600 dark:text-red-400">{errorMsg}</p>
+                        </div>
+                    )}
+
                     {isLoading ? (
-                        <div className="flex flex-col items-center justify-center h-full text-center">
+                        <div className="flex flex-col items-center justify-center h-full text-center animate-fadeIn">
                             <div className="w-24 h-24 mb-6 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
                                 <RefreshCw className="w-10 h-10 text-brand-orange animate-spin" />
                             </div>
-                            <h3 className="text-2xl font-bold dark:text-white">Elaborazione...</h3>
-                            <p className="text-gray-500">I nostri algoritmi stanno shakerando</p>
+                            <h3 className="text-2xl font-bold dark:text-white">Ollama sta shakerando...</h3>
+                            <p className="text-gray-500">Generazione in corso (Llama 3)</p>
                         </div>
                     ) : result ? (
                         <div className="bg-white dark:bg-gray-900 rounded-[3rem] p-10 shadow-2xl border border-gray-100 dark:border-gray-800 animate-scale-in relative overflow-hidden">
@@ -232,7 +266,7 @@ const Lab: React.FC = () => {
                                 </div>
                             </div>
                         </div>
-                    ) : (
+                    ) : !errorMsg && (
                         <div className="text-center p-8 border-2 border-dashed border-gray-200 dark:border-gray-800 rounded-[3rem] w-full h-full flex flex-col items-center justify-center">
                             <div className="w-20 h-20 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mb-4 text-gray-400">
                                 {activeMode === 'create' ? <Zap size={32} /> : activeMode === 'twist' ? <Repeat size={32} /> : <Utensils size={32} />}
