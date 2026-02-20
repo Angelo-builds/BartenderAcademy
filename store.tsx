@@ -37,6 +37,9 @@ interface AppContextType {
   getSharedLink: (id: string) => ShareLink | undefined;
   updateSiteConfig: (config: SiteConfig) => Promise<void>;
   
+  // System
+  uploadLocalDataToDb: () => Promise<string[]>; // Returns logs
+  
   // Storage
   uploadImage: (file: File) => Promise<string | null>;
 
@@ -104,27 +107,20 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
             const dbCocktails = cocktailsData as Cocktail[];
             const dbCocktailMap = new Map(dbCocktails.map(c => [c.id, c]));
             
-            // Deduplication: If a local cocktail (e.g. c102 Americano) has a namesake in DB (UUID Americano),
-            // it means we already migrated it. We prefer the DB version and drop the local legacy one.
             const dbNames = new Set(dbCocktails.map(c => c.name.toLowerCase().trim()));
 
             finalCocktails = finalCocktails.filter(localC => {
-                // If local ID exists in DB map, we keep it (it will be updated next step)
                 if (dbCocktailMap.has(localC.id)) return true;
-                
-                // If it's a Legacy ID AND the name already exists in DB, drop the local duplicate
                 if (isLocalId(localC.id) && dbNames.has(localC.name.toLowerCase().trim())) {
                     return false; 
                 }
                 return true;
             });
 
-            // Update local items that match DB IDs
             finalCocktails = finalCocktails.map(localC => 
                 dbCocktailMap.has(localC.id) ? dbCocktailMap.get(localC.id) as Cocktail : localC
             );
 
-            // Add new items from DB
             const currentIds = new Set(finalCocktails.map(c => c.id));
             const newDbItems = dbCocktails.filter(c => !currentIds.has(c.id));
             finalCocktails = [...finalCocktails, ...newDbItems];
@@ -151,12 +147,34 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
             finalTheory = [...finalTheory, ...newDbItems];
         }
 
+        // --- MERGE STRATEGY CONFIG ---
+        // Simple merge: Use DB values if present, otherwise local defaults
+        const mergedConfig = { ...localData.siteConfig };
+        
+        if (configData) {
+            mergedConfig.homeTitle = configData.homeTitle || mergedConfig.homeTitle;
+            mergedConfig.homeSubtitle = configData.homeSubtitle || mergedConfig.homeSubtitle;
+            mergedConfig.homeSubtitleEn = configData.homeSubtitleEn || mergedConfig.homeSubtitleEn; // Load the new field
+            mergedConfig.homeQuote = configData.homeQuote || mergedConfig.homeQuote;
+            
+            mergedConfig.theoryTitle = configData.theoryTitle || mergedConfig.theoryTitle;
+            mergedConfig.theorySubtitle = configData.theorySubtitle || mergedConfig.theorySubtitle;
+            
+            mergedConfig.distillatesTitle = configData.distillatesTitle || mergedConfig.distillatesTitle;
+            mergedConfig.distillatesSubtitle = configData.distillatesSubtitle || mergedConfig.distillatesSubtitle;
+
+            // Images
+            mergedConfig.homeHeroImage = configData.homeHeroImage || mergedConfig.homeHeroImage;
+            mergedConfig.theoryHeroImage = configData.theoryHeroImage || mergedConfig.theoryHeroImage;
+            mergedConfig.distillatesHeroImage = configData.distillatesHeroImage || mergedConfig.distillatesHeroImage;
+        }
+
         setData({
             cocktails: finalCocktails,
             theory: finalTheory,
             certificates: certsData || [],
             sharedLinks: [],
-            siteConfig: configData ? { ...localData.siteConfig, ...configData } : localData.siteConfig
+            siteConfig: mergedConfig
         });
 
       } catch (error) {
@@ -195,8 +213,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   // --- STORAGE ---
   const uploadImage = async (file: File): Promise<string | null> => {
       try {
-          // SANITIZATION: Remove special characters, spaces, and ensure ASCII only for filename
-          // This prevents Supabase/S3 from rejecting files or creating broken links.
           const fileExt = file.name.split('.').pop()?.toLowerCase() || 'jpg';
           const cleanName = file.name.replace(/\.[^/.]+$/, "").replace(/[^a-zA-Z0-9]/g, "_").toLowerCase();
           const fileName = `${Date.now()}-${cleanName}.${fileExt}`;
@@ -211,59 +227,141 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
           if (uploadError) {
               console.error('Error uploading image:', uploadError);
-              alert(`Errore upload: ${uploadError.message}. Controlla i permessi del bucket 'images'.`);
               return null;
           }
 
           const { data } = supabase.storage.from('images').getPublicUrl(filePath);
-
-          console.log("Upload success, public URL:", data.publicUrl);
           return data.publicUrl;
       } catch (error) {
           console.error('Error in uploadImage:', error);
-          alert('Errore imprevisto durante l\'upload.');
           return null;
       }
+  };
+
+  // --- SYSTEM: SYNC LOCAL TO DB ---
+  const uploadLocalDataToDb = async (): Promise<string[]> => {
+      const logs: string[] = [];
+      const addLog = (msg: string) => {
+          console.log(msg);
+          logs.push(msg);
+      };
+
+      addLog(">>> AVVIO SINCRONIZZAZIONE <<<");
+      
+      if (!user) {
+          addLog("❌ ERRORE: Utente non loggato. Accesso Admin richiesto.");
+          return logs;
+      }
+
+      // Use Italian data as the source of truth for structure
+      const localData = getInitialData('it');
+      
+      let successCount = 0;
+      let errorCount = 0;
+
+      try {
+          // 1. CONFIG
+          addLog("--- Elaborazione Configurazione Sito ---");
+          const cleanConfig = JSON.parse(JSON.stringify(localData.siteConfig));
+          const { error: configError } = await supabase.from('site_config').upsert({ id: 1, ...cleanConfig });
+          
+          if (configError) {
+              addLog(`❌ Errore Config: ${configError.message}`);
+              errorCount++;
+          } else {
+              addLog("✅ Configurazione aggiornata");
+          }
+
+          // 2. COCKTAILS
+          addLog(`--- Elaborazione ${localData.cocktails.length} Cocktails ---`);
+          for (const c of localData.cocktails) {
+              // Prepare payload without local ID to let DB generate UUID if it's new
+              // However, we want to UPSERT based on name to avoid duplicates and fix partial data
+              const { id, ...payload } = c;
+              
+              // We check if it exists by Name first to get its UUID if present
+              const { data: existing } = await supabase.from('cocktails').select('id').eq('name', c.name).maybeSingle();
+              
+              let dbOperation;
+              
+              if (existing) {
+                  // Update existing
+                  dbOperation = supabase.from('cocktails').update({ ...payload, ingredients: payload.ingredients }).eq('id', existing.id);
+                  addLog(`🔄 Aggiornamento: ${c.name}`);
+              } else {
+                  // Insert new
+                  dbOperation = supabase.from('cocktails').insert({ ...payload, ingredients: payload.ingredients });
+                  addLog(`✨ Inserimento: ${c.name}`);
+              }
+
+              const { error } = await dbOperation;
+
+              if (error) {
+                  addLog(`❌ Errore su '${c.name}': ${error.message}`);
+                  errorCount++;
+              } else {
+                  successCount++;
+              }
+          }
+
+          // 3. THEORY
+          addLog(`--- Elaborazione ${localData.theory.length} Sezioni Teoria ---`);
+          for (const th of localData.theory) {
+              const { id, ...payload } = th;
+              const { data: existing } = await supabase.from('theory').select('id').eq('title', th.title).maybeSingle();
+
+              let dbOperation;
+              if (existing) {
+                  dbOperation = supabase.from('theory').update(payload).eq('id', existing.id);
+                  addLog(`🔄 Aggiornamento Teoria: ${th.title}`);
+              } else {
+                  dbOperation = supabase.from('theory').insert(payload);
+                  addLog(`✨ Inserimento Teoria: ${th.title}`);
+              }
+
+              const { error } = await dbOperation;
+
+              if (error) {
+                  addLog(`❌ Errore Teoria '${th.title}': ${error.message}`);
+                  errorCount++;
+              } else {
+                  successCount++;
+              }
+          }
+
+          addLog(">>> SINCRONIZZAZIONE COMPLETATA <<<");
+          addLog(`Riepilogo: ${successCount} Successi, ${errorCount} Errori.`);
+
+      } catch (globalError: any) {
+          addLog(`❌ CRITICAL ERROR: ${globalError.message}`);
+      }
+      
+      return logs;
   };
 
   // --- COCKTAILS ---
   const addCocktail = async (cocktail: Cocktail) => {
     setData(prev => ({ ...prev, cocktails: [...prev.cocktails, cocktail] }));
     const { error } = await supabase.from('cocktails').insert([cocktail]);
-    if (error) { console.error("DB Insert Error:", error); alert(`Errore DB: ${error.message}`); }
+    if (error) { console.error("DB Insert Error:", error); }
   };
   
-  // SMART UPDATE: Handles Migration from Local ID -> UUID
   const updateCocktail = async (cocktail: Cocktail) => {
-    // If it's a Legacy Local ID (e.g. 'c102'), we must migrate it to a UUID
     if (isLocalId(cocktail.id)) {
         const newId = crypto.randomUUID();
         const newCocktail = { ...cocktail, id: newId };
         
-        console.log(`Migrating Cocktail ${cocktail.name} (ID: ${cocktail.id}) to DB (UUID: ${newId})`);
-
-        // Update local state: Replace old item with new item
         setData(prev => ({
             ...prev,
             cocktails: prev.cocktails.map(c => c.id === cocktail.id ? newCocktail : c)
         }));
 
-        // Insert as NEW record in Supabase
         const { error } = await supabase.from('cocktails').insert(newCocktail);
-        if (error) { 
-            console.error("Migration Error:", error); 
-            alert(`Errore Migrazione DB: ${error.message}`); 
-        } else {
-            alert("Cocktail salvato e migrato sul database con successo!");
-        }
+        if (error) { console.error(`Migration Error: ${error.message}`); }
     } else {
-        // Standard Update for existing DB items
         setData(prev => ({ ...prev, cocktails: prev.cocktails.map(c => c.id === cocktail.id ? cocktail : c) }));
         const { error } = await supabase.from('cocktails').upsert(cocktail);
-        if (error) { 
-            console.error("DB Update Error:", error); 
-            alert(`Errore DB: ${error.message}`); 
-        }
+        if (error) { console.error(`DB Error: ${error.message}`); }
     }
   };
   
@@ -278,26 +376,20 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const addTheory = async (theory: TheorySection) => {
     setData(prev => ({ ...prev, theory: [...prev.theory, theory] }));
     const { error } = await supabase.from('theory').insert([theory]);
-    if (error) { console.error("DB Insert Error:", error); alert(`Errore DB: ${error.message}`); }
+    if (error) { console.error("DB Insert Error:", error); }
   };
   
-  // SMART UPDATE THEORY
   const updateTheory = async (theory: TheorySection) => {
     if (isLocalId(theory.id)) {
         const newId = crypto.randomUUID();
         const newTheory = { ...theory, id: newId };
-        
-        setData(prev => ({
-            ...prev,
-            theory: prev.theory.map(t => t.id === theory.id ? newTheory : t)
-        }));
-
+        setData(prev => ({ ...prev, theory: prev.theory.map(t => t.id === theory.id ? newTheory : t) }));
         const { error } = await supabase.from('theory').insert(newTheory);
-        if (error) { console.error("Migration Error:", error); alert(`Errore Migrazione DB: ${error.message}`); }
+        if (error) { console.error("Migration Error:", error); }
     } else {
         setData(prev => ({ ...prev, theory: prev.theory.map(t => t.id === theory.id ? theory : t) }));
         const { error } = await supabase.from('theory').upsert(theory);
-        if (error) { console.error("DB Update Error:", error); alert(`Errore DB: ${error.message}`); }
+        if (error) { console.error("DB Update Error:", error); }
     }
   };
   
@@ -312,13 +404,13 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const addCertificate = async (cert: Certificate) => {
     setData(prev => ({ ...prev, certificates: [...prev.certificates, cert] }));
     const { error } = await supabase.from('certificates').insert([cert]);
-    if (error) { console.error("DB Insert Error:", error); alert(`Errore DB: ${error.message}`); }
+    if (error) { console.error("DB Insert Error:", error); }
   };
   
   const updateCertificate = async (cert: Certificate) => {
     setData(prev => ({ ...prev, certificates: prev.certificates.map(c => c.id === cert.id ? cert : c) }));
     const { error } = await supabase.from('certificates').upsert(cert);
-    if (error) { console.error("DB Update Error:", error); alert(`Errore DB: ${error.message}`); }
+    if (error) { console.error("DB Update Error:", error); }
   };
   
   const deleteCertificate = async (id: string) => {
@@ -337,7 +429,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   const updateSiteConfig = async (config: SiteConfig) => {
     setData(prev => ({ ...prev, siteConfig: config }));
-    await supabase.from('site_config').upsert({ id: 1, ...config });
+    const { error } = await supabase.from('site_config').upsert({ id: 1, ...config });
+    
+    if (error) {
+        console.error("Config Update Error:", error);
+    }
   };
 
   return (
@@ -349,6 +445,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       addTheory, updateTheory, deleteTheory,
       addCertificate, updateCertificate, deleteCertificate,
       createShareLink, getSharedLink, updateSiteConfig,
+      uploadLocalDataToDb, // Exposed for Admin
       uploadImage,
       isDarkMode, toggleTheme
     }}>

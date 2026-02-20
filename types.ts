@@ -50,6 +50,7 @@ export interface SiteConfig {
   homeHeroImage: string;
   homeTitle: string;
   homeSubtitle: string;
+  homeSubtitleEn?: string; // New field for English subtitle
   homeQuote: string;
   theoryHeroImage?: string;
   theoryTitle?: string;

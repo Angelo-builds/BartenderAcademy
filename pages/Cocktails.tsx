@@ -3,10 +3,10 @@ import React, { useState } from 'react';
 import { useAppStore } from '../store';
 import CocktailCard from '../components/CocktailCard';
 import SkeletonCard from '../components/SkeletonCard';
-import { Search, Filter, SlidersHorizontal, Heart } from 'lucide-react';
+import { Search, Filter, SlidersHorizontal, Heart, EyeOff } from 'lucide-react';
 
 const Cocktails: React.FC = () => {
-  const { data, t, isLoading, favorites } = useAppStore();
+  const { data, t, isLoading, favorites, isAdmin } = useAppStore();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterEra, setFilterEra] = useState<string>('All');
   const [filterCategory, setFilterCategory] = useState<string>('All');
@@ -19,7 +19,10 @@ const Cocktails: React.FC = () => {
     const matchesEra = filterEra === 'All' || c.era === filterEra;
     const matchesCategory = filterCategory === 'All' || c.category === filterCategory;
     const matchesFav = showFavoritesOnly ? favorites.includes(c.id) : true;
-    const isVisible = c.status !== 'draft'; // Hide drafts from public view
+    
+    // Visibility: Admins can see 'draft' status items, regular users cannot.
+    const isVisible = isAdmin || c.status !== 'draft';
+    
     return matchesSearch && matchesEra && matchesCategory && matchesFav && isVisible;
   });
 
@@ -93,7 +96,17 @@ const Cocktails: React.FC = () => {
       ) : filteredCocktails.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {filteredCocktails.map(cocktail => (
-                <CocktailCard key={cocktail.id} cocktail={cocktail} />
+                <div key={cocktail.id} className="relative group">
+                    {/* Draft Overlay for Admins */}
+                    {cocktail.status === 'draft' && (
+                        <div className="absolute top-2 left-1/2 -translate-x-1/2 z-50 bg-gray-900/80 backdrop-blur-sm text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider flex items-center gap-2 border border-white/20">
+                            <EyeOff size={10} /> Bozza (Admin)
+                        </div>
+                    )}
+                    <div className={cocktail.status === 'draft' ? 'opacity-60 grayscale-[50%]' : ''}>
+                        <CocktailCard cocktail={cocktail} />
+                    </div>
+                </div>
             ))}
         </div>
       ) : (

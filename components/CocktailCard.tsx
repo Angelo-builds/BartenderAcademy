@@ -149,6 +149,7 @@ const CocktailCard: React.FC<Props> = ({ cocktail }) => {
       </div>
       
       <div className="p-6 flex flex-col flex-grow">
+        {/* UPDATED: dark:text-night-azure */}
         <div className="flex items-center gap-2 mb-6 text-xs font-bold uppercase tracking-wider text-brand-orange dark:text-night-azure">
           <Wine size={14} /><span>{cocktail.glass}</span><span className="w-1 h-1 rounded-full bg-gray-300 dark:bg-gray-600"></span><span>{cocktail.method}</span>
         </div>

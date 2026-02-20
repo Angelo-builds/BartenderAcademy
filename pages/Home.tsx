@@ -5,6 +5,7 @@ import { BookOpen, Martini, FlaskConical, Users, ArrowRight, Star, Quote, Pencil
 import { useAppStore } from '../store';
 import { Cocktail, SiteConfig } from '../types';
 import EditModal, { EditField } from '../components/EditModal';
+import { translations } from '../translations';
 
 const Home: React.FC = () => {
   const { t, data, isAdmin, updateSiteConfig, language } = useAppStore();
@@ -45,6 +46,7 @@ const Home: React.FC = () => {
           homeHeroImage: newData.homeHeroImage,
           homeTitle: newData.homeTitle,
           homeSubtitle: newData.homeSubtitle,
+          homeSubtitleEn: newData.homeSubtitleEn,
           homeQuote: newData.homeQuote
       };
       updateSiteConfig(updatedConfig);
@@ -57,10 +59,17 @@ const Home: React.FC = () => {
 
   const editFields: EditField[] = [
       { key: 'homeTitle', label: t.admin.config.heroTitle, type: 'text', value: editFormState.homeTitle },
-      { key: 'homeSubtitle', label: t.admin.config.heroSubtitle, type: 'textarea', value: editFormState.homeSubtitle },
+      { key: 'homeSubtitle', label: t.admin.config.heroSubtitle + ' (IT)', type: 'textarea', value: editFormState.homeSubtitle },
+      { key: 'homeSubtitleEn', label: 'Subtitle (EN)', type: 'textarea', value: editFormState.homeSubtitleEn || '' },
       { key: 'homeHeroImage', label: t.admin.config.heroImage, type: 'image', value: editFormState.homeHeroImage },
-      // Removed quote edit field to enforce translation consistency
   ];
+
+  // DISPLAY LOGIC:
+  // If language is Italian, show homeSubtitle.
+  // If language is English, show homeSubtitleEn (from DB) OR fall back to standard Italian subtitle if empty.
+  const displaySubtitle = language === 'it' 
+      ? siteConfig.homeSubtitle 
+      : (siteConfig.homeSubtitleEn || siteConfig.homeSubtitle);
   
   return (
     <div className="flex flex-col gap-0 -mt-8">
@@ -70,7 +79,7 @@ const Home: React.FC = () => {
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
         onSave={handleConfigSave}
-        title={`${t.admin.config.title} (${language.toUpperCase()})`}
+        title={`${t.admin.config.title}`}
         fields={editFields}
         onChange={handleEditChange}
       />
@@ -81,7 +90,7 @@ const Home: React.FC = () => {
           {isAdmin && (
               <button 
                 onClick={() => setIsEditModalOpen(true)}
-                className="absolute top-24 right-8 z-50 p-3 bg-brand-orange text-white rounded-full shadow-lg hover:scale-110 transition-transform animate-fadeIn border-2 border-white"
+                className="absolute top-24 right-8 z-50 p-3 bg-brand-orange dark:bg-night-blue text-white rounded-full shadow-lg hover:scale-110 transition-transform animate-fadeIn border-2 border-white"
                 title="Edit Home Content"
               >
                   <Pencil size={24} />
@@ -96,17 +105,19 @@ const Home: React.FC = () => {
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent opacity-90"></div>
           
           <div className="relative z-10 flex-grow flex flex-col justify-center items-center text-center px-4 max-w-5xl mx-auto pt-32 pb-20">
-            <span className="inline-block py-2 px-4 rounded-full bg-brand-orange text-white font-bold text-xs uppercase tracking-[0.2em] mb-6 animate-fadeIn">
+            {/* UPDATED: dark:bg-night-blue */}
+            <span className="inline-block py-2 px-4 rounded-full bg-brand-orange dark:bg-night-blue text-white font-bold text-xs uppercase tracking-[0.2em] mb-6 animate-fadeIn">
                 {t.home.welcome}
             </span>
             <h1 className="text-5xl md:text-7xl lg:text-8xl font-black text-white tracking-tighter mb-8 leading-tight drop-shadow-2xl">
               {siteConfig.homeTitle || t.home.title} 
             </h1>
             <p className="text-xl md:text-2xl text-gray-300 max-w-2xl mx-auto leading-relaxed mb-12 font-light">
-              {siteConfig.homeSubtitle || t.home.subtitle}
+              {displaySubtitle}
             </p>
              <div className="flex flex-col sm:flex-row gap-4 z-20 w-full justify-center">
-                <Link to="/cocktails" className="px-8 py-4 bg-brand-orange text-white rounded-full font-bold text-lg hover:bg-brand-red transition-all shadow-lg shadow-brand-orange/40 flex items-center justify-center gap-2 transform hover:scale-105 active:scale-95 duration-300 min-w-[200px]">
+                {/* UPDATED: dark:bg-night-blue dark:hover:bg-blue-800 */}
+                <Link to="/cocktails" className="px-8 py-4 bg-brand-orange dark:bg-night-blue text-white rounded-full font-bold text-lg hover:bg-brand-red dark:hover:bg-blue-800 transition-all shadow-lg shadow-brand-orange/40 dark:shadow-blue-900/40 flex items-center justify-center gap-2 transform hover:scale-105 active:scale-95 duration-300 min-w-[200px]">
                     {t.home.exploreRecipes} <ArrowRight size={20} />
                 </Link>
                 <Link to="/theory" className="px-8 py-4 bg-white text-black rounded-full font-bold text-lg hover:bg-gray-100 transition-colors shadow-lg flex items-center justify-center transform hover:scale-105 active:scale-95 duration-300 min-w-[200px]">
@@ -122,11 +133,13 @@ const Home: React.FC = () => {
                <img src="https://images.unsplash.com/photo-1550989460-0adf9ea622e2?auto=format&fit=crop&w=2000&q=80" className="w-full h-full object-cover grayscale" alt="" />
            </div>
            <div className="container mx-auto px-6 relative z-10 flex flex-col items-center justify-center text-center">
-               <Quote size={48} className="text-brand-orange mb-8 opacity-80" />
+               {/* UPDATED: dark:text-night-azure */}
+               <Quote size={48} className="text-brand-orange dark:text-night-azure mb-8 opacity-80" />
                <p className="font-serif text-3xl md:text-5xl italic leading-tight max-w-4xl mx-auto animate-fadeIn">
                   "{randomQuote}"
                </p>
-               <div className="mt-8 w-24 h-1 bg-gradient-to-r from-transparent via-brand-orange to-transparent opacity-50"></div>
+               {/* UPDATED: dark:via-night-azure */}
+               <div className="mt-8 w-24 h-1 bg-gradient-to-r from-transparent via-brand-orange dark:via-night-azure to-transparent opacity-50"></div>
            </div>
       </section>
 
@@ -145,12 +158,14 @@ const Home: React.FC = () => {
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent"></div>
                         <div className="absolute bottom-0 left-0 p-8 text-white">
-                            <div className="flex items-center gap-2 text-brand-orange font-bold text-xs uppercase tracking-widest mb-2">
+                            {/* UPDATED: dark:text-night-azure */}
+                            <div className="flex items-center gap-2 text-brand-orange dark:text-night-azure font-bold text-xs uppercase tracking-widest mb-2">
                                 <Star size={14} fill="currentColor" /> {t.home.featured}
                             </div>
                             <h2 className="text-4xl font-black mb-2">{featuredCocktail.name}</h2>
                             <p className="text-gray-300 text-sm mb-4 line-clamp-2">{featuredCocktail.category} • {featuredCocktail.era}</p>
-                            <span className="inline-flex items-center gap-2 text-sm font-bold border-b border-brand-orange pb-0.5">
+                            {/* UPDATED: dark:border-night-azure */}
+                            <span className="inline-flex items-center gap-2 text-sm font-bold border-b border-brand-orange dark:border-night-azure pb-0.5">
                                 {t.home.viewRecipe} <ArrowRight size={14} />
                             </span>
                         </div>
@@ -171,7 +186,8 @@ const Home: React.FC = () => {
 
               {/* Theory Card */}
               <Link to="/theory" className="md:col-span-1 bg-gray-100 dark:bg-gray-900 rounded-3xl p-8 flex flex-col justify-between hover:bg-white dark:hover:bg-gray-800 transition-all shadow-sm hover:shadow-xl group border border-gray-200 dark:border-gray-800">
-                   <div className="p-4 bg-brand-orange/10 rounded-2xl w-fit text-brand-orange group-hover:bg-brand-orange group-hover:text-white transition-colors">
+                   {/* UPDATED: dark:bg-night-azure/10 dark:text-night-azure */}
+                   <div className="p-4 bg-brand-orange/10 dark:bg-night-azure/10 rounded-2xl w-fit text-brand-orange dark:text-night-azure group-hover:bg-brand-orange dark:group-hover:bg-night-azure group-hover:text-white transition-colors">
                       <BookOpen size={32} />
                   </div>
                   <div>

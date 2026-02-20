@@ -48,7 +48,8 @@ const IMG = {
 const siteConfig_IT: SiteConfig = {
   homeHeroImage: 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=1920&q=80',
   homeTitle: 'Bartender',
-  homeSubtitle: 'L\'eccellenza nella formazione per bartender. Un percorso completo dalla merceologia alla mixology avanzata.',
+  homeSubtitle: 'L\'eccellenza nella formazione per bartender. Un percorso completo dalla merceologia alla mixology avanzata',
+  homeSubtitleEn: 'Excellence in bartender training. A complete journey from product knowledge to advanced mixology',
   homeQuote: 'Il bar non è solo un luogo, è un palcoscenico. Ogni cocktail è una storia, ogni cliente un ospite d\'onore.',
   theoryHeroImage: 'https://images.unsplash.com/photo-1516975080664-ed2fc6a32937?auto=format&fit=crop&w=2000&q=80',
   theoryTitle: 'Manuale Operativo',
@@ -62,7 +63,8 @@ const siteConfig_IT: SiteConfig = {
 const siteConfig_EN: SiteConfig = {
   homeHeroImage: 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=1920&q=80',
   homeTitle: 'Bartender',
-  homeSubtitle: 'Excellence in bartender training. A complete journey from product knowledge to advanced mixology.',
+  homeSubtitle: 'L\'eccellenza nella formazione per bartender. Un percorso completo dalla merceologia alla mixology avanzata',
+  homeSubtitleEn: 'Excellence in bartender training. A complete journey from product knowledge to advanced mixology',
   homeQuote: 'The bar is not just a place, it is a stage. Every cocktail is a story, every customer a guest of honor.',
   theoryHeroImage: 'https://images.unsplash.com/photo-1516975080664-ed2fc6a32937?auto=format&fit=crop&w=2000&q=80',
   theoryTitle: 'Operations Manual',

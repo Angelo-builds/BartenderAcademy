@@ -72,17 +72,19 @@ const School: React.FC = () => {
     const renderMenu = () => (
         <div className="max-w-4xl mx-auto py-12 px-4 animate-fadeIn">
             <div className="text-center mb-16">
-                <span className="text-brand-orange font-bold tracking-[0.2em] uppercase text-xs mb-4 block">Gym Area</span>
+                {/* UPDATED: dark:text-night-azure */}
+                <span className="text-brand-orange dark:text-night-azure font-bold tracking-[0.2em] uppercase text-xs mb-4 block">Gym Area</span>
                 <h1 className="text-5xl font-black text-gray-900 dark:text-white mb-6">Bartender Academy</h1>
                 <p className="text-xl text-gray-500 max-w-2xl mx-auto">Scegli la tua modalità di allenamento e affina le tue conoscenze.</p>
             </div>
 
             <div className="mb-12 flex justify-center">
                 <div className="relative inline-block w-64">
+                    {/* UPDATED: dark:focus:ring-night-azure */}
                     <select 
                         value={filterCategory} 
                         onChange={(e) => setFilterCategory(e.target.value)}
-                        className="w-full appearance-none px-6 py-4 bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-white font-bold outline-none focus:ring-2 focus:ring-brand-orange"
+                        className="w-full appearance-none px-6 py-4 bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-white font-bold outline-none focus:ring-2 focus:ring-brand-orange dark:focus:ring-night-azure"
                     >
                         {categories.map(c => <option key={c} value={c}>{c === 'All' ? 'Tutto il Database' : c}</option>)}
                     </select>
@@ -105,12 +107,12 @@ const School: React.FC = () => {
 
                 <button 
                     onClick={() => startSession('quiz')}
-                    className="group relative h-80 rounded-[2.5rem] overflow-hidden bg-gradient-to-br from-brand-orange to-red-600 text-white p-10 text-left transition-transform hover:scale-[1.02] shadow-2xl shadow-orange-500/30"
+                    className="group relative h-80 rounded-[2.5rem] overflow-hidden bg-gradient-to-br from-brand-orange to-red-600 dark:from-night-blue dark:to-purple-900 text-white p-10 text-left transition-transform hover:scale-[1.02] shadow-2xl shadow-orange-500/30 dark:shadow-purple-500/30"
                 >
                     <HelpCircle size={48} className="mb-6 opacity-80" />
                     <h2 className="text-4xl font-black mb-4">Speed Quiz</h2>
-                    <p className="text-orange-100 text-lg opacity-90">Mettiti alla prova. Indovina gli ingredienti corretti per ogni drink.</p>
-                    <div className="absolute bottom-10 right-10 p-3 bg-white/20 backdrop-blur-md rounded-full group-hover:bg-white group-hover:text-brand-orange transition-colors">
+                    <p className="text-orange-100 dark:text-blue-100 text-lg opacity-90">Mettiti alla prova. Indovina gli ingredienti corretti per ogni drink.</p>
+                    <div className="absolute bottom-10 right-10 p-3 bg-white/20 backdrop-blur-md rounded-full group-hover:bg-white group-hover:text-brand-orange dark:group-hover:text-night-blue transition-colors">
                         <ChevronRight size={24} />
                     </div>
                 </button>
@@ -137,7 +139,8 @@ const School: React.FC = () => {
                         
                         {/* FRONT */}
                         <div className="absolute inset-0 backface-hidden bg-white dark:bg-gray-900 rounded-[3rem] shadow-2xl flex flex-col items-center justify-center p-8 border border-gray-100 dark:border-gray-800">
-                             <div className="w-32 h-32 mb-8 rounded-full bg-brand-orange/10 flex items-center justify-center text-brand-orange">
+                             {/* UPDATED: dark:bg-night-blue/20 dark:text-night-azure */}
+                             <div className="w-32 h-32 mb-8 rounded-full bg-brand-orange/10 dark:bg-night-blue/20 flex items-center justify-center text-brand-orange dark:text-night-azure">
                                  <Brain size={48} />
                              </div>
                              <h2 className="text-4xl font-black text-center text-gray-900 dark:text-white mb-4">{item.name}</h2>
@@ -147,7 +150,8 @@ const School: React.FC = () => {
 
                         {/* BACK */}
                         <div className="absolute inset-0 backface-hidden rotate-y-180 bg-gray-900 dark:bg-white text-white dark:text-black rounded-[3rem] shadow-2xl flex flex-col items-center justify-center p-8">
-                             <h3 className="text-2xl font-bold mb-6 underline decoration-brand-orange">Ricetta</h3>
+                             {/* UPDATED: dark:decoration-night-blue */}
+                             <h3 className="text-2xl font-bold mb-6 underline decoration-brand-orange dark:decoration-night-blue">Ricetta</h3>
                              <ul className="space-y-4 text-center">
                                  {item.ingredients.map((ing, i) => (
                                      <li key={i} className="text-lg">
@@ -164,7 +168,8 @@ const School: React.FC = () => {
 
                 <div className="mt-8 flex justify-center gap-4">
                      <button onClick={() => { setIsFlipped(false); setCurrentIndex(prev => Math.max(0, prev - 1)); }} disabled={currentIndex === 0} className="p-4 rounded-full bg-gray-200 dark:bg-gray-800 disabled:opacity-50"><ChevronRight className="rotate-180" /></button>
-                     <button onClick={() => { setIsFlipped(false); setCurrentIndex(prev => Math.min(studyItems.length - 1, prev + 1)); }} disabled={currentIndex === studyItems.length - 1} className="p-4 rounded-full bg-brand-orange text-white disabled:opacity-50"><ChevronRight /></button>
+                     {/* UPDATED: dark:bg-night-blue */}
+                     <button onClick={() => { setIsFlipped(false); setCurrentIndex(prev => Math.min(studyItems.length - 1, prev + 1)); }} disabled={currentIndex === studyItems.length - 1} className="p-4 rounded-full bg-brand-orange dark:bg-night-blue text-white disabled:opacity-50"><ChevronRight /></button>
                 </div>
             </div>
         );
@@ -175,7 +180,8 @@ const School: React.FC = () => {
             return (
                 <div className="max-w-md mx-auto py-20 px-4 text-center">
                     <h2 className="text-4xl font-black text-white mb-6">Quiz Completato!</h2>
-                    <div className="text-8xl font-black text-brand-orange mb-4">{score} <span className="text-4xl text-gray-500">/ {studyItems.length}</span></div>
+                    {/* UPDATED: dark:text-night-azure */}
+                    <div className="text-8xl font-black text-brand-orange dark:text-night-azure mb-4">{score} <span className="text-4xl text-gray-500">/ {studyItems.length}</span></div>
                     <p className="text-gray-400 mb-12">Ottimo lavoro!</p>
                     <button onClick={() => setMode('menu')} className="px-8 py-4 bg-white text-black rounded-full font-bold">Torna al Menu</button>
                 </div>
@@ -187,7 +193,8 @@ const School: React.FC = () => {
         return (
             <div className="max-w-2xl mx-auto py-12 px-4 min-h-screen flex flex-col">
                 <div className="flex justify-between items-center mb-12">
-                    <span className="font-mono text-brand-orange">Punteggio: {score}</span>
+                    {/* UPDATED: dark:text-night-azure */}
+                    <span className="font-mono text-brand-orange dark:text-night-azure">Punteggio: {score}</span>
                     <button onClick={() => setMode('menu')}><X /></button>
                 </div>
 
@@ -200,7 +207,8 @@ const School: React.FC = () => {
                              <button 
                                 key={idx}
                                 onClick={() => handleQuizAnswer(opt.isCorrect)} 
-                                className="p-6 bg-gray-800 hover:bg-gray-700 rounded-2xl text-left border border-gray-700 hover:border-brand-orange transition-all"
+                                // UPDATED: hover:border-brand-orange dark:hover:border-night-azure
+                                className="p-6 bg-gray-800 hover:bg-gray-700 rounded-2xl text-left border border-gray-700 hover:border-brand-orange dark:hover:border-night-azure transition-all"
                              >
                                  {opt.text}
                              </button>

@@ -19,7 +19,7 @@ export const translations = {
       welcome: 'Accademia del Bar',
       title: 'Bartender',
       school: 'School',
-      subtitle: 'L\'eccellenza nella formazione per bartender. Un percorso completo dalla merceologia alla mixology avanzata.',
+      subtitle: 'L\'eccellenza nella formazione per bartender. Un percorso completo dalla merceologia alla mixology avanzata',
       exploreRecipes: 'Sfoglia Ricettario',
       studyTheory: 'Manuale Tecnico',
       featured: 'Cocktail in Evidenza',
@@ -189,6 +189,10 @@ export const translations = {
     },
     common: {
         comingSoon: 'In Arrivo'
+    },
+    chatbot: {
+        welcome: 'Dalla teoria al bicchiere: chiedimi qualsiasi cosa sul mondo della mixology!',
+        placeholder: 'Chiedi al bartender...'
     }
   },
   en: {
@@ -208,7 +212,7 @@ export const translations = {
       welcome: 'Bar Academy',
       title: 'Bartender',
       school: 'School',
-      subtitle: 'Excellence in bartender training. A complete journey from product knowledge to advanced mixology.',
+      subtitle: 'Excellence in bartender training. A complete journey from product knowledge to advanced mixology',
       exploreRecipes: 'Browse Recipes',
       studyTheory: 'Technical Manual',
       featured: 'Featured Cocktail',
@@ -378,6 +382,10 @@ export const translations = {
     },
     common: {
         comingSoon: 'Coming Soon'
+    },
+    chatbot: {
+        welcome: 'From theory to glass: ask me anything about the world of mixology!',
+        placeholder: 'Ask the bartender...'
     }
   }
 };
