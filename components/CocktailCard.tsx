@@ -12,22 +12,34 @@ interface Props {
 const CocktailCard: React.FC<Props> = ({ cocktail }) => {
   const { isAdmin, t, favorites, toggleFavorite } = useAppStore();
   const navigate = useNavigate();
-  const [imgSrc, setImgSrc] = useState(cocktail.image);
+  const [imgSrc, setImgSrc] = useState<string>('');
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
   
+  // 0: local .jpg, 1: local .jpeg, 2: local .png, 3: DB URL, 4: Error
+  const [loadAttempt, setLoadAttempt] = useState(0);
+
   const isFav = favorites.includes(cocktail.id);
+  
+  const getSlug = (name: string) => {
+      return name
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+  };
 
   useEffect(() => {
-      // Try local image first based on naming convention (slug)
-      const normalize = (str: string) => str.normalize("NFD").replace(/[\u0300-\u036f]/g, ""); 
-      const filename = normalize(cocktail.name).toLowerCase().trim().replace(/[^a-z0-9]/g, '-');
-      const localPath = `/images/${filename}.jpg`;
-      
-      setImgSrc(localPath);
+      // Reset state when cocktail changes
+      setLoadAttempt(0);
       setImageLoaded(false);
       setImageError(false);
-  }, [cocktail.image, cocktail.name]);
+      
+      const slug = getSlug(cocktail.name);
+      setImgSrc(`/images/${slug}.jpg`);
+  }, [cocktail.name, cocktail.image]);
 
   const handleEdit = (e: React.MouseEvent) => {
       e.preventDefault(); e.stopPropagation();
@@ -35,14 +47,29 @@ const CocktailCard: React.FC<Props> = ({ cocktail }) => {
   };
 
   const handleImageError = () => {
-      // If local path failed, try the DB image (if different and valid)
-      const normalize = (str: string) => str.normalize("NFD").replace(/[\u0300-\u036f]/g, ""); 
-      const filename = normalize(cocktail.name).toLowerCase().trim().replace(/[^a-z0-9]/g, '-');
-      const localPath = `/images/${filename}.jpg`;
-
-      if (imgSrc === localPath && cocktail.image && cocktail.image !== localPath && cocktail.image.startsWith('http')) {
-          setImgSrc(cocktail.image);
+      const slug = getSlug(cocktail.name);
+      
+      if (loadAttempt === 0) {
+          // Try .jpeg
+          setLoadAttempt(1);
+          setImgSrc(`/images/${slug}.jpeg`);
+      } else if (loadAttempt === 1) {
+          // Try .png
+          setLoadAttempt(2);
+          setImgSrc(`/images/${slug}.png`);
+      } else if (loadAttempt === 2) {
+          // Try DB Image (if it exists and is not the same as what we just tried)
+          // Note: If cocktail.image IS one of the local paths, we skip to error to avoid loop
+          if (cocktail.image && !cocktail.image.includes(`/images/${slug}`)) {
+              setLoadAttempt(3);
+              setImgSrc(cocktail.image);
+          } else {
+              setLoadAttempt(4);
+              setImageError(true);
+          }
       } else {
+          // Give up
+          setLoadAttempt(4);
           setImageError(true);
       }
   };

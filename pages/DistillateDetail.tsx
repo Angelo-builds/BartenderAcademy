@@ -19,11 +19,16 @@ const DistillateDetail: React.FC = () => {
     <div className="min-h-screen bg-white dark:bg-black fixed inset-0 z-50 overflow-y-auto">
         <div className="flex flex-col lg:flex-row min-h-screen">
             
+import SmartImage from '../components/SmartImage';
+
+// ... inside DistillateDetail component ...
+
             {/* Left Side - Image (Sticky on Desktop) */}
             <div className="lg:w-1/2 relative h-[50vh] lg:h-screen lg:sticky lg:top-0">
-                <img 
+                <SmartImage 
                     src={item.image} 
-                    alt={item.title} 
+                    alt={item.title}
+                    nameForSlug={item.title} 
                     className="w-full h-full object-cover"
                 />
                 <div className="absolute inset-0 bg-black/30"></div>

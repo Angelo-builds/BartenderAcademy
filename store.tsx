@@ -103,12 +103,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         // --- MERGE STRATEGY COCKTAILS ---
         let finalCocktails: Cocktail[] = [];
         
-        if (cocktailsData && cocktailsData.length > 0) {
-            // If DB has data, use it as the single source of truth.
-            // This prevents deleted items (which exist in local data.ts) from reappearing.
+        if (cocktailsData) {
+            // If DB fetch succeeded (even if empty), use it as the source of truth.
             finalCocktails = cocktailsData as Cocktail[];
         } else {
-            // Only fall back to local data if DB is completely empty
+            // Only fall back to local data if DB fetch failed (null/undefined)
             finalCocktails = [...localData.cocktails];
         }
 

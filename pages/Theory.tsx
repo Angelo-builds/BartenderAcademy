@@ -196,11 +196,20 @@ const SectionAccordion: React.FC<{ item: TheorySection, index: number, isAdmin: 
                     <MarkdownRenderer content={item.content} />
                 </div>
 
+import SmartImage from '../components/SmartImage';
+
+// ... inside SectionAccordion component ...
+
                 {/* Optional Image or Sidebar */}
                 {item.image && (
                     <div className="xl:w-1/3">
                         <div className="sticky top-24 rounded-2xl overflow-hidden shadow-xl">
-                             <img src={item.image} alt={item.title} className="w-full h-auto object-cover" />
+                             <SmartImage 
+                                src={item.image} 
+                                alt={item.title} 
+                                nameForSlug={item.title}
+                                className="w-full h-auto object-cover" 
+                             />
                              <div className="bg-gray-50 dark:bg-gray-800 p-4">
                                  <div className="flex items-center gap-2 text-xs font-bold uppercase text-gray-500">
                                      <Bookmark size={14} className="text-brand-orange" />

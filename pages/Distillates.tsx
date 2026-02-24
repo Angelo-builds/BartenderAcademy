@@ -140,11 +140,16 @@ const Distillates: React.FC = () => {
                     </button>
                 )}
 
+import SmartImage from '../components/SmartImage';
+
+// ... inside Distillates component ...
+
                 {/* Background Image */}
                 <div className="absolute inset-0 bg-gray-800">
-                    <img 
+                    <SmartImage 
                         src={item.image} 
                         alt={item.title} 
+                        nameForSlug={item.title}
                         className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110 opacity-80 group-hover:opacity-60"
                         loading="lazy"
                     />
