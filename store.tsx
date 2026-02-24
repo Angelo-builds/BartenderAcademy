@@ -101,29 +101,15 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         const { data: configData } = await supabase.from('site_config').select('*').single();
 
         // --- MERGE STRATEGY COCKTAILS ---
-        let finalCocktails = [...localData.cocktails];
+        let finalCocktails: Cocktail[] = [];
         
-        if (cocktailsData) {
-            const dbCocktails = cocktailsData as Cocktail[];
-            const dbCocktailMap = new Map(dbCocktails.map(c => [c.id, c]));
-            
-            const dbNames = new Set(dbCocktails.map(c => c.name.toLowerCase().trim()));
-
-            finalCocktails = finalCocktails.filter(localC => {
-                if (dbCocktailMap.has(localC.id)) return true;
-                if (isLocalId(localC.id) && dbNames.has(localC.name.toLowerCase().trim())) {
-                    return false; 
-                }
-                return true;
-            });
-
-            finalCocktails = finalCocktails.map(localC => 
-                dbCocktailMap.has(localC.id) ? dbCocktailMap.get(localC.id) as Cocktail : localC
-            );
-
-            const currentIds = new Set(finalCocktails.map(c => c.id));
-            const newDbItems = dbCocktails.filter(c => !currentIds.has(c.id));
-            finalCocktails = [...finalCocktails, ...newDbItems];
+        if (cocktailsData && cocktailsData.length > 0) {
+            // If DB has data, use it as the single source of truth.
+            // This prevents deleted items (which exist in local data.ts) from reappearing.
+            finalCocktails = cocktailsData as Cocktail[];
+        } else {
+            // Only fall back to local data if DB is completely empty
+            finalCocktails = [...localData.cocktails];
         }
 
         // --- MERGE STRATEGY THEORY ---

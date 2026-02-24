@@ -19,10 +19,15 @@ const CocktailCard: React.FC<Props> = ({ cocktail }) => {
   const isFav = favorites.includes(cocktail.id);
 
   useEffect(() => {
-      setImgSrc(cocktail.image);
+      // Try local image first based on naming convention (slug)
+      const normalize = (str: string) => str.normalize("NFD").replace(/[\u0300-\u036f]/g, ""); 
+      const filename = normalize(cocktail.name).toLowerCase().trim().replace(/[^a-z0-9]/g, '-');
+      const localPath = `/images/${filename}.jpg`;
+      
+      setImgSrc(localPath);
       setImageLoaded(false);
       setImageError(false);
-  }, [cocktail.image]);
+  }, [cocktail.image, cocktail.name]);
 
   const handleEdit = (e: React.MouseEvent) => {
       e.preventDefault(); e.stopPropagation();
@@ -30,12 +35,13 @@ const CocktailCard: React.FC<Props> = ({ cocktail }) => {
   };
 
   const handleImageError = () => {
-      // Logic to try local file first, then fail to placeholder
-      if (imgSrc && imgSrc.startsWith('http')) {
-          const normalize = (str: string) => str.normalize("NFD").replace(/[\u0300-\u036f]/g, ""); 
-          const filename = normalize(cocktail.name).toLowerCase().trim().replace(/[^a-z0-9]/g, '-');
-          const fallbackPath = `/images/${filename}.jpg`;
-          setImgSrc(fallbackPath);
+      // If local path failed, try the DB image (if different and valid)
+      const normalize = (str: string) => str.normalize("NFD").replace(/[\u0300-\u036f]/g, ""); 
+      const filename = normalize(cocktail.name).toLowerCase().trim().replace(/[^a-z0-9]/g, '-');
+      const localPath = `/images/${filename}.jpg`;
+
+      if (imgSrc === localPath && cocktail.image && cocktail.image !== localPath && cocktail.image.startsWith('http')) {
+          setImgSrc(cocktail.image);
       } else {
           setImageError(true);
       }

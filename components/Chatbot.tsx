@@ -1,6 +1,6 @@
+
 import React, { useState, useRef, useEffect } from 'react';
-import ReactMarkdown from 'react-markdown';
-import { MessageCircle, X, Send, Bot, User } from 'lucide-react';
+import { MessageCircle, X, Send, Bot, User, WifiOff } from 'lucide-react';
 import { useAppStore } from '../store';
 
 const Chatbot: React.FC = () => {
@@ -10,6 +10,7 @@ const Chatbot: React.FC = () => {
     // Initialize messages state
     const [messages, setMessages] = useState<{ role: 'user' | 'model', text: string }[]>([]);
     
+    // Update welcome message when language changes or on first mount
     useEffect(() => {
         if (messages.length === 0) {
             setMessages([{ role: 'model', text: t.chatbot.welcome }]);
@@ -21,8 +22,8 @@ const Chatbot: React.FC = () => {
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     // CONFIGURAZIONE OLLAMA
-    const OLLAMA_URL = '/api/chat';
-    const OLLAMA_MODEL = 'mixologist'; 
+    const OLLAMA_URL = 'http://192.168.1.248:11434/api/chat';
+    const OLLAMA_MODEL = 'mixologist'; // Cambia con 'mistral', 'gemma:2b', etc.
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -40,18 +41,20 @@ const Chatbot: React.FC = () => {
         setInput('');
         setIsThinking(true);
 
-        // Prepariamo un messaggio vuoto per il bot che riempiremo con lo streaming
-        setMessages(prev => [...prev, { role: 'model', text: '' }]);
-
         try {
+            // 1. Costruiamo il contesto dai dati locali del sito
             const cocktailNames = data.cocktails.map(c => c.name).join(', ');
-            const systemPrompt = `Questi sono i drink nel database: ${cocktailNames}. 
-                                 Rispondi in ${language === 'it' ? 'Italiano' : 'Inglese'}. 
-                                 Sii professionale e conciso. Usa il formato Markdown per liste e grassetti.`;
+            
+            const systemPrompt = `Questi sono i drink attualmente presenti nel database della scuola: ${cocktailNames}. 
+                                  Usa queste informazioni per rispondere in modo preciso se l'utente chiede cosa offriamo. 
+                                  Ricorda di rispondere in ${language === 'it' ? 'Italiano' : 'Inglese'}.`;
 
+            // 2. Chiamata Fetch a Ollama Locale
             const response = await fetch(OLLAMA_URL, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                },
                 body: JSON.stringify({
                     model: OLLAMA_MODEL,
                     messages: [
@@ -62,53 +65,22 @@ const Chatbot: React.FC = () => {
                         })),
                         { role: 'user', content: userMsg }
                     ],
-                    stream: true
+                    stream: false // Per semplicità, disabilitiamo lo streaming per ora
                 })
             });
 
-            if (!response.ok) throw new Error("Errore di connessione");
-
-            const reader = response.body?.getReader();
-            const decoder = new TextDecoder();
-            let accumulatedText = "";
-
-            if (reader) {
-                setIsThinking(false);
-
-                while (true) {
-                    const { done, value } = await reader.read();
-                    if (done) break;
-
-                    const chunk = decoder.decode(value, { stream: true });
-                    const lines = chunk.split('\n');
-                    
-                    for (const line of lines) {
-                        if (!line.trim()) continue;
-                        try {
-                            const json = JSON.parse(line);
-                            if (json.message?.content) {
-                                accumulatedText += json.message.content;
-                                
-                                setMessages(prev => {
-                                    const updated = [...prev];
-                                    updated[updated.length - 1].text = accumulatedText;
-                                    return updated;
-                                });
-                            }
-                        } catch (e) {
-                            console.error("Errore parsing chunk:", e);
-                        }
-                    }
-                }
+            if (!response.ok) {
+                throw new Error("Ops! Il barman virtuale è andato a prendere il ghiaccio. 🧊 Riprova tra poco!");
             }
+
+            const dataResponse = await response.json();
+            const text = dataResponse.message?.content || "Scusa, il modello non ha restituito testo.";
+            
+            setMessages(prev => [...prev, { role: 'model', text }]);
 
         } catch (error) {
             console.error("Errore Ollama:", error);
-            setMessages(prev => {
-                const updated = [...prev];
-                updated[updated.length - 1].text = "Il barman è occupato al bancone. 🧊 Riprova tra poco!";
-                return updated;
-            });
+            setMessages(prev => [...prev, { role: 'model', text: "Il barman virtuale è andato a prendere il ghiaccio. 🧊 Riprova tra poco!" }]);
         } finally {
             setIsThinking(false);
         }
@@ -146,13 +118,7 @@ const Chatbot: React.FC = () => {
                                     {msg.role === 'user' ? <User size={14} /> : <Bot size={14} />}
                                 </div>
                                 <div className={`p-3 rounded-2xl text-sm max-w-[80%] ${msg.role === 'user' ? 'bg-gray-200 dark:bg-gray-800 text-gray-900 dark:text-white rounded-tr-none' : 'bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 text-gray-700 dark:text-gray-300 rounded-tl-none shadow-sm'}`}>
-                                    {msg.role === 'model' ? (
-                                        <div className="markdown-container prose prose-sm dark:prose-invert max-w-none break-words">
-                                            <ReactMarkdown>{msg.text || (idx === messages.length - 1 && isThinking ? '...' : '')}</ReactMarkdown>
-                                        </div>
-                                    ) : (
-                                        msg.text
-                                    )}
+                                    {msg.text}
                                 </div>
                             </div>
                         ))}
