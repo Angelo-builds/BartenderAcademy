@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import ReactMarkdown from 'react-markdown';
 import { MessageCircle, X, Send, Bot, User } from 'lucide-react';
 import { useAppStore } from '../store';
 
@@ -46,7 +47,7 @@ const Chatbot: React.FC = () => {
             const cocktailNames = data.cocktails.map(c => c.name).join(', ');
             const systemPrompt = `Questi sono i drink nel database: ${cocktailNames}. 
                                  Rispondi in ${language === 'it' ? 'Italiano' : 'Inglese'}. 
-                                 Sii professionale e conciso.`;
+                                 Sii professionale e conciso. Usa il formato Markdown per liste e grassetti.`;
 
             const response = await fetch(OLLAMA_URL, {
                 method: 'POST',
@@ -61,27 +62,24 @@ const Chatbot: React.FC = () => {
                         })),
                         { role: 'user', content: userMsg }
                     ],
-                    stream: true // ABILITATO
+                    stream: true
                 })
             });
 
             if (!response.ok) throw new Error("Errore di connessione");
 
-            // Gestione dello Streaming
             const reader = response.body?.getReader();
             const decoder = new TextDecoder();
             let accumulatedText = "";
 
             if (reader) {
-                setIsThinking(false); // Smettiamo di mostrare i pallini non appena arriva il primo chunk
+                setIsThinking(false);
 
                 while (true) {
                     const { done, value } = await reader.read();
                     if (done) break;
 
                     const chunk = decoder.decode(value, { stream: true });
-                    
-                    // Ollama invia oggetti JSON multipli in un unico chunk a volte
                     const lines = chunk.split('\n');
                     
                     for (const line of lines) {
@@ -91,7 +89,6 @@ const Chatbot: React.FC = () => {
                             if (json.message?.content) {
                                 accumulatedText += json.message.content;
                                 
-                                // Aggiorniamo l'ultimo messaggio (quello del bot) in tempo reale
                                 setMessages(prev => {
                                     const updated = [...prev];
                                     updated[updated.length - 1].text = accumulatedText;
@@ -149,7 +146,13 @@ const Chatbot: React.FC = () => {
                                     {msg.role === 'user' ? <User size={14} /> : <Bot size={14} />}
                                 </div>
                                 <div className={`p-3 rounded-2xl text-sm max-w-[80%] ${msg.role === 'user' ? 'bg-gray-200 dark:bg-gray-800 text-gray-900 dark:text-white rounded-tr-none' : 'bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 text-gray-700 dark:text-gray-300 rounded-tl-none shadow-sm'}`}>
-                                    {msg.text || (idx === messages.length - 1 && isThinking ? '...' : '')}
+                                    {msg.role === 'model' ? (
+                                        <div className="markdown-container prose prose-sm dark:prose-invert max-w-none break-words">
+                                            <ReactMarkdown>{msg.text || (idx === messages.length - 1 && isThinking ? '...' : '')}</ReactMarkdown>
+                                        </div>
+                                    ) : (
+                                        msg.text
+                                    )}
                                 </div>
                             </div>
                         ))}
