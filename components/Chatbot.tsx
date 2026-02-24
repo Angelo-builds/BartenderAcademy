@@ -21,9 +21,9 @@ const Chatbot: React.FC = () => {
     const [isThinking, setIsThinking] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
-    // CONFIGURAZIONE OLLAMA (Dinamica)
-    const OLLAMA_URL = data.siteConfig.ollamaUrl || 'http://localhost:11434/api/chat';
-    const OLLAMA_MODEL = 'llama3'; // Cambia con 'mistral', 'gemma:2b', etc.
+    // CONFIGURAZIONE OLLAMA
+    const OLLAMA_URL = 'http://192.168.1.248:11434/api/chat';
+    const OLLAMA_MODEL = 'mixologist'; // Cambia con 'mistral', 'gemma:2b', etc.
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -45,11 +45,9 @@ const Chatbot: React.FC = () => {
             // 1. Costruiamo il contesto dai dati locali del sito
             const cocktailNames = data.cocktails.map(c => c.name).join(', ');
             
-            const systemPrompt = `Sei un esperto mixologist e bartender insegnante (Bartender AI). 
-            Il database della scuola contiene questi drink: ${cocktailNames}.
-            Rispondi in modo professionale, amichevole e conciso. 
-            IMPORTANTE: Rispondi nella lingua dell'utente (Italiano o Inglese) in base alla domanda.
-            Se chiedono un drink specifico, descrivilo. Se chiedono abbinamenti, sii creativo.`;
+            const systemPrompt = `Questi sono i drink attualmente presenti nel database della scuola: ${cocktailNames}. 
+                                  Usa queste informazioni per rispondere in modo preciso se l'utente chiede cosa offriamo. 
+                                  Ricorda di rispondere in ${language === 'it' ? 'Italiano' : 'Inglese'}.`;
 
             // 2. Chiamata Fetch a Ollama Locale
             const response = await fetch(OLLAMA_URL, {
