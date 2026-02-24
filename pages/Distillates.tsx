@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, Droplets, Pencil } from 'lucide-react';
 import EditModal, { EditField } from '../components/EditModal';
 import { TheorySection } from '../types';
+import SmartImage from '../components/SmartImage';
 
 const Distillates: React.FC = () => {
   const { data, t, isAdmin, updateSiteConfig, updateTheory, language } = useAppStore();
@@ -139,10 +140,6 @@ const Distillates: React.FC = () => {
                         <Pencil size={18} />
                     </button>
                 )}
-
-import SmartImage from '../components/SmartImage';
-
-// ... inside Distillates component ...
 
                 {/* Background Image */}
                 <div className="absolute inset-0 bg-gray-800">

@@ -90,7 +90,7 @@ const Navbar: React.FC = () => {
 
               {/* School Group */}
               <div className="group/section flex items-center gap-1">
-                   <NavItem to="/school" icon={GraduationCap} label={t.nav.training} active={isActive('/school')} />
+                   <NavItem to="/academy" icon={GraduationCap} label={t.nav.training} active={isActive('/academy')} />
               </div>
 
               <Separator />
@@ -162,7 +162,7 @@ const Navbar: React.FC = () => {
             <Link to="/theory" onClick={() => setIsOpen(false)} className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-3"><BookOpen size={20} />{t.nav.theory}</Link>
             <Link to="/distillates" onClick={() => setIsOpen(false)} className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-3"><FlaskConical size={20} />{t.nav.distillates}</Link>
             <div className="w-12 h-px bg-gray-200 dark:bg-gray-800"></div>
-            <Link to="/school" onClick={() => setIsOpen(false)} className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-3"><GraduationCap size={20} />{t.nav.training}</Link>
+            <Link to="/academy" onClick={() => setIsOpen(false)} className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-3"><GraduationCap size={20} />{t.nav.training}</Link>
             <div className="w-12 h-px bg-gray-200 dark:bg-gray-800"></div>
             <Link to="/cocktails" onClick={() => setIsOpen(false)} className="text-xl font-bold text-brand-orange dark:text-night-azure flex items-center gap-3"><Wine size={20} />{t.nav.cocktails}</Link>
             <Link to="/lab" onClick={() => setIsOpen(false)} className="text-xl font-bold text-purple-600 dark:text-purple-400 flex items-center gap-3"><Sparkles size={20} />{t.nav.lab}</Link>

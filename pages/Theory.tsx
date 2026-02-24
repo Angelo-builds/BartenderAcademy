@@ -5,6 +5,7 @@ import { ChevronDown, Book, Bookmark, Layers, Pencil } from 'lucide-react';
 import MarkdownRenderer from '../components/MarkdownRenderer';
 import EditModal, { EditField } from '../components/EditModal';
 import { TheorySection, SiteConfig } from '../types';
+import SmartImage from '../components/SmartImage';
 
 const Theory: React.FC = () => {
   const { data, t, isAdmin, updateTheory, updateSiteConfig, language } = useAppStore();
@@ -195,10 +196,6 @@ const SectionAccordion: React.FC<{ item: TheorySection, index: number, isAdmin: 
                 <div className="flex-1 prose prose-lg dark:prose-invert max-w-none">
                     <MarkdownRenderer content={item.content} />
                 </div>
-
-import SmartImage from '../components/SmartImage';
-
-// ... inside SectionAccordion component ...
 
                 {/* Optional Image or Sidebar */}
                 {item.image && (

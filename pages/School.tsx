@@ -1,7 +1,8 @@
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useAppStore } from '../store';
-import { Brain, Layers, Check, X, ChevronRight, HelpCircle } from 'lucide-react';
+import { Brain, Layers, Check, X, ChevronRight, ChevronLeft, HelpCircle, RotateCw, Trophy, ArrowLeft } from 'lucide-react';
+import SmartImage from '../components/SmartImage';
 
 const School: React.FC = () => {
     const { data } = useAppStore();
@@ -13,6 +14,8 @@ const School: React.FC = () => {
     const [isFlipped, setIsFlipped] = useState(false); // For Flashcards
     const [score, setScore] = useState(0);
     const [quizFinished, setQuizFinished] = useState(false);
+    const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
+    const [showResult, setShowResult] = useState(false);
 
     // Filter Items based on selection
     const studyItems = useMemo(() => {
@@ -20,7 +23,7 @@ const School: React.FC = () => {
         if (filterCategory !== 'All') {
             items = items.filter(c => c.category === filterCategory || c.era === filterCategory);
         }
-        // Shuffle items for randomness
+        // Shuffle items for randomness on mount/filter change
         return items.sort(() => Math.random() - 0.5);
     }, [data.cocktails, filterCategory]);
 
@@ -30,7 +33,6 @@ const School: React.FC = () => {
         const currentItem = studyItems[currentIndex];
 
         // Find distractors (wrong answers)
-        // Try to find cocktails from same category for difficulty, else random
         let distractors = data.cocktails.filter(c => c.id !== currentItem.id);
         
         // Shuffle and pick 2
@@ -56,64 +58,113 @@ const School: React.FC = () => {
         setIsFlipped(false);
         setScore(0);
         setQuizFinished(false);
+        setSelectedAnswer(null);
+        setShowResult(false);
     };
 
-    const handleQuizAnswer = (isCorrect: boolean) => {
+    const handleQuizAnswer = (isCorrect: boolean, id: string) => {
+        if (showResult) return; // Prevent multiple clicks
+        setSelectedAnswer(id);
+        setShowResult(true);
+        
         if (isCorrect) setScore(s => s + 1);
-        if (currentIndex < studyItems.length - 1) {
-            setCurrentIndex(prev => prev + 1);
-        } else {
-            setQuizFinished(true);
-        }
+
+        setTimeout(() => {
+            if (currentIndex < studyItems.length - 1) {
+                setCurrentIndex(prev => prev + 1);
+                setSelectedAnswer(null);
+                setShowResult(false);
+            } else {
+                setQuizFinished(true);
+            }
+        }, 1500);
+    };
+
+    const nextCard = () => {
+        setIsFlipped(false);
+        setTimeout(() => {
+            setCurrentIndex(prev => Math.min(studyItems.length - 1, prev + 1));
+        }, 200);
+    };
+
+    const prevCard = () => {
+        setIsFlipped(false);
+        setTimeout(() => {
+            setCurrentIndex(prev => Math.max(0, prev - 1));
+        }, 200);
     };
 
     // --- RENDERERS ---
 
     const renderMenu = () => (
-        <div className="max-w-4xl mx-auto py-12 px-4 animate-fadeIn">
+        <div className="max-w-5xl mx-auto py-12 px-4 animate-fadeIn">
             <div className="text-center mb-16">
-                {/* UPDATED: dark:text-night-azure */}
-                <span className="text-brand-orange dark:text-night-azure font-bold tracking-[0.2em] uppercase text-xs mb-4 block">Gym Area</span>
-                <h1 className="text-5xl font-black text-gray-900 dark:text-white mb-6">Bartender Academy</h1>
-                <p className="text-xl text-gray-500 max-w-2xl mx-auto">Scegli la tua modalità di allenamento e affina le tue conoscenze.</p>
+                <span className="text-brand-orange font-bold tracking-[0.2em] uppercase text-xs mb-4 block">Gym Area</span>
+                <h1 className="text-5xl md:text-6xl font-black text-gray-900 dark:text-white mb-6">Bartender Academy</h1>
+                <p className="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+                    Scegli la tua modalità di allenamento e affina le tue conoscenze.
+                </p>
             </div>
 
             <div className="mb-12 flex justify-center">
-                <div className="relative inline-block w-64">
-                    {/* UPDATED: dark:focus:ring-night-azure */}
+                <div className="relative inline-block w-72">
                     <select 
                         value={filterCategory} 
                         onChange={(e) => setFilterCategory(e.target.value)}
-                        className="w-full appearance-none px-6 py-4 bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-white font-bold outline-none focus:ring-2 focus:ring-brand-orange dark:focus:ring-night-azure"
+                        className="w-full appearance-none px-6 py-4 bg-white dark:bg-gray-800 rounded-2xl border-2 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white font-bold outline-none focus:ring-4 focus:ring-brand-orange/20 transition-all cursor-pointer"
                     >
                         {categories.map(c => <option key={c} value={c}>{c === 'All' ? 'Tutto il Database' : c}</option>)}
                     </select>
-                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">▼</div>
+                    <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">▼</div>
                 </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {/* Flashcards Card */}
                 <button 
                     onClick={() => startSession('flashcards')}
-                    className="group relative h-80 rounded-[2.5rem] overflow-hidden bg-gradient-to-br from-blue-600 to-indigo-700 text-white p-10 text-left transition-transform hover:scale-[1.02] shadow-2xl shadow-blue-500/30"
+                    className="group relative h-96 rounded-[2.5rem] overflow-hidden bg-white dark:bg-gray-800 p-10 text-left transition-all hover:-translate-y-2 hover:shadow-2xl border border-gray-100 dark:border-gray-700 shadow-lg"
                 >
-                    <Layers size={48} className="mb-6 opacity-80" />
-                    <h2 className="text-4xl font-black mb-4">Flashcards</h2>
-                    <p className="text-blue-100 text-lg opacity-90">Memorizza ricette, ingredienti e bicchieri girando le carte.</p>
-                    <div className="absolute bottom-10 right-10 p-3 bg-white/20 backdrop-blur-md rounded-full group-hover:bg-white group-hover:text-blue-600 transition-colors">
-                        <ChevronRight size={24} />
+                    <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
+                        <Layers size={120} className="text-blue-500" />
+                    </div>
+                    <div className="relative z-10 h-full flex flex-col justify-between">
+                        <div>
+                            <div className="w-16 h-16 rounded-2xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 mb-6">
+                                <Layers size={32} />
+                            </div>
+                            <h2 className="text-4xl font-black text-gray-900 dark:text-white mb-4">Flashcards</h2>
+                            <p className="text-gray-500 dark:text-gray-400 text-lg leading-relaxed">
+                                Memorizza ricette, ingredienti e bicchieri girando le carte.
+                            </p>
+                        </div>
+                        <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400 font-bold">
+                            Inizia Sessione <ChevronRight size={20} />
+                        </div>
                     </div>
                 </button>
 
+                {/* Quiz Card */}
                 <button 
                     onClick={() => startSession('quiz')}
-                    className="group relative h-80 rounded-[2.5rem] overflow-hidden bg-gradient-to-br from-brand-orange to-red-600 dark:from-night-blue dark:to-purple-900 text-white p-10 text-left transition-transform hover:scale-[1.02] shadow-2xl shadow-orange-500/30 dark:shadow-purple-500/30"
+                    className="group relative h-96 rounded-[2.5rem] overflow-hidden bg-white dark:bg-gray-800 p-10 text-left transition-all hover:-translate-y-2 hover:shadow-2xl border border-gray-100 dark:border-gray-700 shadow-lg"
                 >
-                    <HelpCircle size={48} className="mb-6 opacity-80" />
-                    <h2 className="text-4xl font-black mb-4">Speed Quiz</h2>
-                    <p className="text-orange-100 dark:text-blue-100 text-lg opacity-90">Mettiti alla prova. Indovina gli ingredienti corretti per ogni drink.</p>
-                    <div className="absolute bottom-10 right-10 p-3 bg-white/20 backdrop-blur-md rounded-full group-hover:bg-white group-hover:text-brand-orange dark:group-hover:text-night-blue transition-colors">
-                        <ChevronRight size={24} />
+                    <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
+                        <HelpCircle size={120} className="text-brand-orange" />
+                    </div>
+                    <div className="relative z-10 h-full flex flex-col justify-between">
+                        <div>
+                            <div className="w-16 h-16 rounded-2xl bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center text-brand-orange mb-6">
+                                <HelpCircle size={32} />
+                            </div>
+                            <h2 className="text-4xl font-black text-gray-900 dark:text-white mb-4">Speed Quiz</h2>
+                            <p className="text-gray-500 dark:text-gray-400 text-lg leading-relaxed">
+                                Mettiti alla prova. Indovina gli ingredienti corretti per ogni drink.
+                            </p>
+                        </div>
+                        <div className="flex items-center gap-2 text-brand-orange font-bold">
+                            Inizia Quiz <ChevronRight size={20} />
+                        </div>
                     </div>
                 </button>
             </div>
@@ -122,54 +173,110 @@ const School: React.FC = () => {
 
     const renderFlashcard = () => {
         const item = studyItems[currentIndex];
-        if (!item) return <div className="text-center py-20 text-gray-500">Nessun drink trovato con questi filtri.</div>;
+        if (!item) return <div className="text-center py-20 text-gray-500 dark:text-gray-400">Nessun drink trovato con questi filtri.</div>;
 
         return (
-            <div className="max-w-md mx-auto py-12 px-4 h-[80vh] flex flex-col justify-center">
+            <div className="max-w-2xl mx-auto py-8 px-4 min-h-screen flex flex-col">
                  <div className="flex justify-between items-center mb-8">
-                    <button onClick={() => setMode('menu')} className="text-gray-400 hover:text-white transition-colors">Esci</button>
-                    <span className="font-mono text-sm text-gray-500">{currentIndex + 1} / {studyItems.length}</span>
+                    <button 
+                        onClick={() => setMode('menu')} 
+                        className="flex items-center gap-2 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors"
+                    >
+                        <ArrowLeft size={20} /> Esci
+                    </button>
+                    <span className="font-mono text-sm font-bold text-gray-400">{currentIndex + 1} / {studyItems.length}</span>
                 </div>
 
-                <div 
-                    className="flex-grow relative perspective-1000 cursor-pointer group"
-                    onClick={() => setIsFlipped(!isFlipped)}
-                >
-                    <div className={`relative w-full h-full transition-all duration-500 transform-style-3d ${isFlipped ? 'rotate-y-180' : ''}`}>
-                        
-                        {/* FRONT */}
-                        <div className="absolute inset-0 backface-hidden bg-white dark:bg-gray-900 rounded-[3rem] shadow-2xl flex flex-col items-center justify-center p-8 border border-gray-100 dark:border-gray-800">
-                             {/* UPDATED: dark:bg-night-blue/20 dark:text-night-azure */}
-                             <div className="w-32 h-32 mb-8 rounded-full bg-brand-orange/10 dark:bg-night-blue/20 flex items-center justify-center text-brand-orange dark:text-night-azure">
-                                 <Brain size={48} />
-                             </div>
-                             <h2 className="text-4xl font-black text-center text-gray-900 dark:text-white mb-4">{item.name}</h2>
-                             <p className="text-gray-400 uppercase tracking-widest text-xs font-bold">{item.category}</p>
-                             <p className="mt-8 text-sm text-gray-400 animate-pulse">Clicca per girare</p>
-                        </div>
+                <div className="flex-grow flex flex-col justify-center perspective-1000">
+                    <div 
+                        className="relative w-full aspect-[3/4] md:aspect-[4/3] cursor-pointer group"
+                        onClick={() => setIsFlipped(!isFlipped)}
+                        style={{ perspective: '1000px' }}
+                    >
+                        <div 
+                            className="relative w-full h-full transition-all duration-700"
+                            style={{ 
+                                transformStyle: 'preserve-3d',
+                                transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)'
+                            }}
+                        >
+                            
+                            {/* FRONT CARD */}
+                            <div 
+                                className="absolute inset-0 w-full h-full bg-white dark:bg-gray-800 rounded-[3rem] shadow-2xl border border-gray-100 dark:border-gray-700 flex flex-col items-center justify-center p-8 text-center"
+                                style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
+                            >
+                                 <div className="w-32 h-32 mb-8 rounded-full bg-gray-50 dark:bg-gray-700 flex items-center justify-center overflow-hidden shadow-inner">
+                                     {item.image ? (
+                                         <SmartImage 
+                                            src={item.image} 
+                                            alt={item.name} 
+                                            nameForSlug={item.name}
+                                            className="w-full h-full object-cover" 
+                                         />
+                                     ) : (
+                                         <Brain size={48} className="text-gray-300 dark:text-gray-600" />
+                                     )}
+                                 </div>
+                                 <h2 className="text-4xl md:text-5xl font-black text-gray-900 dark:text-white mb-4">{item.name}</h2>
+                                 <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs font-bold uppercase tracking-widest">
+                                     {item.category}
+                                 </div>
+                                 <div className="mt-auto pt-8 text-gray-400 dark:text-gray-500 flex items-center gap-2 text-sm font-medium animate-pulse">
+                                     <RotateCw size={16} /> Clicca per girare
+                                 </div>
+                            </div>
 
-                        {/* BACK */}
-                        <div className="absolute inset-0 backface-hidden rotate-y-180 bg-gray-900 dark:bg-white text-white dark:text-black rounded-[3rem] shadow-2xl flex flex-col items-center justify-center p-8">
-                             {/* UPDATED: dark:decoration-night-blue */}
-                             <h3 className="text-2xl font-bold mb-6 underline decoration-brand-orange dark:decoration-night-blue">Ricetta</h3>
-                             <ul className="space-y-4 text-center">
-                                 {item.ingredients.map((ing, i) => (
-                                     <li key={i} className="text-lg">
-                                         <span className="font-bold">{ing.amount}</span> {ing.name}
-                                     </li>
-                                 ))}
-                             </ul>
-                             <div className="mt-8 pt-4 border-t border-white/20 dark:border-black/10">
-                                 <p className="text-sm opacity-70 italic">{item.glass} • {item.method}</p>
-                             </div>
+                            {/* BACK CARD */}
+                            <div 
+                                className="absolute inset-0 w-full h-full bg-gray-900 dark:bg-white rounded-[3rem] shadow-2xl flex flex-col items-center p-8 text-center overflow-hidden"
+                                style={{ 
+                                    backfaceVisibility: 'hidden', 
+                                    WebkitBackfaceVisibility: 'hidden',
+                                    transform: 'rotateY(180deg)' 
+                                }}
+                            >
+                                 <h3 className="text-brand-orange dark:text-brand-orange text-sm font-bold uppercase tracking-widest mb-4 shrink-0">Ricetta</h3>
+                                 
+                                 <div className="w-full max-w-xs mx-auto flex-1 overflow-y-auto no-scrollbar flex flex-col gap-6">
+                                     <ul className="space-y-3">
+                                         {item.ingredients.map((ing, i) => (
+                                             <li key={i} className="flex justify-between items-baseline text-lg text-white dark:text-gray-900 border-b border-white/10 dark:border-gray-200 pb-2">
+                                                 <span className="font-medium text-left">{ing.name}</span>
+                                                 <span className="font-bold text-gray-400 dark:text-gray-500 whitespace-nowrap ml-2">{ing.amount}</span>
+                                             </li>
+                                         ))}
+                                     </ul>
+
+                                     <div className="bg-white/10 dark:bg-gray-100 rounded-2xl p-5 w-full">
+                                         <div className="text-xs text-gray-400 dark:text-gray-500 uppercase font-bold mb-1">Metodo</div>
+                                         <div className="text-white dark:text-gray-900 font-medium">{item.method}</div>
+                                     </div>
+                                 </div>
+
+                                 <div className="pt-4 mt-2 text-gray-500 dark:text-gray-400 flex items-center gap-2 text-sm font-medium shrink-0 cursor-pointer hover:text-white dark:hover:text-black transition-colors">
+                                     <RotateCw size={16} /> Clicca per tornare
+                                 </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <div className="mt-8 flex justify-center gap-4">
-                     <button onClick={() => { setIsFlipped(false); setCurrentIndex(prev => Math.max(0, prev - 1)); }} disabled={currentIndex === 0} className="p-4 rounded-full bg-gray-200 dark:bg-gray-800 disabled:opacity-50"><ChevronRight className="rotate-180" /></button>
-                     {/* UPDATED: dark:bg-night-blue */}
-                     <button onClick={() => { setIsFlipped(false); setCurrentIndex(prev => Math.min(studyItems.length - 1, prev + 1)); }} disabled={currentIndex === studyItems.length - 1} className="p-4 rounded-full bg-brand-orange dark:bg-night-blue text-white disabled:opacity-50"><ChevronRight /></button>
+                <div className="mt-8 flex justify-center gap-6">
+                     <button 
+                        onClick={prevCard} 
+                        disabled={currentIndex === 0} 
+                        className="p-4 rounded-full bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-lg disabled:opacity-50 hover:scale-110 transition-transform"
+                     >
+                         <ChevronLeft size={24} />
+                     </button>
+                     <button 
+                        onClick={nextCard} 
+                        disabled={currentIndex === studyItems.length - 1} 
+                        className="p-4 rounded-full bg-brand-orange text-white shadow-lg shadow-orange-500/30 disabled:opacity-50 hover:scale-110 transition-transform"
+                     >
+                         <ChevronRight size={24} />
+                     </button>
                 </div>
             </div>
         );
@@ -178,12 +285,23 @@ const School: React.FC = () => {
     const renderQuiz = () => {
         if (quizFinished) {
             return (
-                <div className="max-w-md mx-auto py-20 px-4 text-center">
-                    <h2 className="text-4xl font-black text-white mb-6">Quiz Completato!</h2>
-                    {/* UPDATED: dark:text-night-azure */}
-                    <div className="text-8xl font-black text-brand-orange dark:text-night-azure mb-4">{score} <span className="text-4xl text-gray-500">/ {studyItems.length}</span></div>
-                    <p className="text-gray-400 mb-12">Ottimo lavoro!</p>
-                    <button onClick={() => setMode('menu')} className="px-8 py-4 bg-white text-black rounded-full font-bold">Torna al Menu</button>
+                <div className="max-w-md mx-auto py-20 px-4 text-center min-h-screen flex flex-col justify-center">
+                    <div className="w-24 h-24 bg-yellow-400 rounded-full flex items-center justify-center mx-auto mb-8 shadow-xl">
+                        <Trophy size={48} className="text-yellow-900" />
+                    </div>
+                    <h2 className="text-4xl font-black text-gray-900 dark:text-white mb-6">Quiz Completato!</h2>
+                    <div className="text-8xl font-black text-brand-orange mb-4">
+                        {score} <span className="text-4xl text-gray-400">/ {studyItems.length}</span>
+                    </div>
+                    <p className="text-gray-500 dark:text-gray-400 mb-12 text-lg">
+                        {score === studyItems.length ? 'Perfetto! Sei un maestro.' : 'Ottimo lavoro, continua ad allenarti!'}
+                    </p>
+                    <button 
+                        onClick={() => setMode('menu')} 
+                        className="px-10 py-5 bg-gray-900 dark:bg-white text-white dark:text-black rounded-full font-bold text-lg hover:scale-105 transition-transform shadow-xl"
+                    >
+                        Torna al Menu
+                    </button>
                 </div>
             )
         }
@@ -193,26 +311,55 @@ const School: React.FC = () => {
         return (
             <div className="max-w-2xl mx-auto py-12 px-4 min-h-screen flex flex-col">
                 <div className="flex justify-between items-center mb-12">
-                    {/* UPDATED: dark:text-night-azure */}
-                    <span className="font-mono text-brand-orange dark:text-night-azure">Punteggio: {score}</span>
-                    <button onClick={() => setMode('menu')}><X /></button>
+                    <div className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 rounded-full shadow-sm">
+                        <Trophy size={16} className="text-brand-orange" />
+                        <span className="font-bold text-gray-900 dark:text-white">{score}</span>
+                    </div>
+                    <button onClick={() => setMode('menu')} className="p-2 bg-gray-100 dark:bg-gray-800 rounded-full text-gray-500 hover:text-red-500 transition-colors">
+                        <X size={20} />
+                    </button>
                 </div>
 
                 <div className="flex-grow flex flex-col justify-center">
-                    <h2 className="text-center text-gray-400 text-sm uppercase tracking-widest mb-4">Quali sono gli ingredienti corretti?</h2>
-                    <h1 className="text-center text-5xl font-black text-white mb-12">{item.name}</h1>
+                    <div className="text-center mb-12">
+                        <span className="inline-block px-3 py-1 bg-brand-orange/10 text-brand-orange text-xs font-bold uppercase tracking-widest rounded-full mb-6">
+                            Domanda {currentIndex + 1} di {studyItems.length}
+                        </span>
+                        <h2 className="text-gray-500 dark:text-gray-400 text-lg mb-4">Quali sono gli ingredienti per il</h2>
+                        <h1 className="text-5xl md:text-6xl font-black text-gray-900 dark:text-white mb-8">{item.name}?</h1>
+                    </div>
 
                     <div className="grid grid-cols-1 gap-4">
-                        {quizOptions.map((opt, idx) => (
-                             <button 
-                                key={idx}
-                                onClick={() => handleQuizAnswer(opt.isCorrect)} 
-                                // UPDATED: hover:border-brand-orange dark:hover:border-night-azure
-                                className="p-6 bg-gray-800 hover:bg-gray-700 rounded-2xl text-left border border-gray-700 hover:border-brand-orange dark:hover:border-night-azure transition-all"
-                             >
-                                 {opt.text}
-                             </button>
-                        ))}
+                        {quizOptions.map((opt, idx) => {
+                             let btnClass = "p-6 rounded-2xl text-left border-2 transition-all relative overflow-hidden group ";
+                             
+                             if (showResult) {
+                                 if (opt.isCorrect) {
+                                     btnClass += "bg-green-500 border-green-500 text-white shadow-lg scale-[1.02]";
+                                 } else if (selectedAnswer === opt.id) {
+                                     btnClass += "bg-red-500 border-red-500 text-white opacity-50";
+                                 } else {
+                                     btnClass += "bg-white dark:bg-gray-800 border-gray-100 dark:border-gray-700 text-gray-400 dark:text-gray-600 opacity-50";
+                                 }
+                             } else {
+                                 btnClass += "bg-white dark:bg-gray-800 border-gray-100 dark:border-gray-700 text-gray-700 dark:text-gray-200 hover:border-brand-orange dark:hover:border-brand-orange hover:shadow-lg hover:-translate-y-1";
+                             }
+
+                             return (
+                                <button 
+                                    key={idx}
+                                    onClick={() => handleQuizAnswer(opt.isCorrect, opt.id)} 
+                                    disabled={showResult}
+                                    className={btnClass}
+                                >
+                                    <div className="relative z-10 flex justify-between items-center">
+                                        <span className="font-medium text-lg">{opt.text}</span>
+                                        {showResult && opt.isCorrect && <Check size={24} />}
+                                        {showResult && selectedAnswer === opt.id && !opt.isCorrect && <X size={24} />}
+                                    </div>
+                                </button>
+                             );
+                        })}
                     </div>
                 </div>
             </div>
@@ -220,7 +367,7 @@ const School: React.FC = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-black">
+        <div className="min-h-screen bg-gray-50 dark:bg-black transition-colors duration-300">
             {mode === 'menu' && renderMenu()}
             {mode === 'flashcards' && renderFlashcard()}
             {mode === 'quiz' && renderQuiz()}

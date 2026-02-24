@@ -21,7 +21,7 @@ const MainLayout: React.FC = () => {
   const location = useLocation();
 
   const isSharedPage = location.pathname.startsWith('/shared/');
-  const isSchoolMode = location.pathname === '/school';
+  const isSchoolMode = location.pathname === '/academy';
   
   // Dynamic padding based on route to handle full-screen experiences better
   const spacingClass = (location.pathname === '/' || isSharedPage || isSchoolMode) ? '' : 'pt-20 md:pt-24';
@@ -38,7 +38,7 @@ const MainLayout: React.FC = () => {
             <Route path="/cocktails" element={<Cocktails />} />
             <Route path="/distillates" element={<Distillates />} />
             <Route path="/distillates/:id" element={<DistillateDetail />} />
-            <Route path="/school" element={<School />} />
+            <Route path="/academy" element={<School />} />
             <Route path="/lab" element={<Lab />} />
             <Route path="/tools" element={<Tools />} />
             <Route path="/admin" element={<Admin />} />

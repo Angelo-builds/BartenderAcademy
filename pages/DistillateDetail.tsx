@@ -4,6 +4,7 @@ import { useParams, Link, Navigate } from 'react-router-dom';
 import { useAppStore } from '../store';
 import MarkdownRenderer from '../components/MarkdownRenderer';
 import { ArrowLeft, Share2 } from 'lucide-react';
+import SmartImage from '../components/SmartImage';
 
 const DistillateDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -19,10 +20,6 @@ const DistillateDetail: React.FC = () => {
     <div className="min-h-screen bg-white dark:bg-black fixed inset-0 z-50 overflow-y-auto">
         <div className="flex flex-col lg:flex-row min-h-screen">
             
-import SmartImage from '../components/SmartImage';
-
-// ... inside DistillateDetail component ...
-
             {/* Left Side - Image (Sticky on Desktop) */}
             <div className="lg:w-1/2 relative h-[50vh] lg:h-screen lg:sticky lg:top-0">
                 <SmartImage 
