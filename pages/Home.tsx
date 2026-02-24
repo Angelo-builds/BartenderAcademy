@@ -85,7 +85,7 @@ const Home: React.FC = () => {
       />
 
       {/* Hero Section */}
-      <div className="relative min-h-[85vh] w-full rounded-b-[3rem] overflow-hidden -mx-4 md:-mx-8 lg:-mx-12 w-[calc(100%+2rem)] md:w-[calc(100%+4rem)] lg:w-[calc(100%+6rem)] z-10 flex flex-col group">
+      <div className="relative min-h-[85vh] w-screen left-[50%] right-[50%] -ml-[50vw] -mr-[50vw] rounded-b-[3rem] overflow-hidden z-10 flex flex-col group">
           {/* Admin Edit Button for Hero */}
           {isAdmin && (
               <button 

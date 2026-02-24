@@ -72,7 +72,7 @@ const Chatbot: React.FC = () => {
             });
 
             if (!response.ok) {
-                throw new Error("Ollama non risponde. Assicurati che l'URL nelle impostazioni Admin sia corretto e raggiungibile.");
+                throw new Error("Ops! Il barman virtuale è andato a prendere il ghiaccio. 🧊 Riprova tra poco!");
             }
 
             const dataResponse = await response.json();
@@ -82,7 +82,7 @@ const Chatbot: React.FC = () => {
 
         } catch (error) {
             console.error("Errore Ollama:", error);
-            setMessages(prev => [...prev, { role: 'model', text: `Errore: Impossibile contattare Ollama su ${OLLAMA_URL}. Controlla la configurazione in Admin.` }]);
+            setMessages(prev => [...prev, { role: 'model', text: "Il barman virtuale è andato a prendere il ghiaccio. 🧊 Riprova tra poco!" }]);
         } finally {
             setIsThinking(false);
         }

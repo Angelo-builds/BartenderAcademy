@@ -64,8 +64,8 @@ const Navbar: React.FC = () => {
              <div className="relative flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-brand-orange to-red-600 dark:from-night-blue dark:to-night-azure shadow-lg shadow-orange-500/20 dark:shadow-blue-500/20 group-hover/logo:scale-105 transition-transform flex-shrink-0">
                 <Martini className="text-white w-5 h-5 -ml-0.5" strokeWidth={2.5} />
             </div>
-            {/* Logo Text - Reveals on hover */}
-            <div className="max-w-0 group-hover/logo:max-w-[150px] overflow-hidden transition-all duration-500 ease-out opacity-0 group-hover/logo:opacity-100 flex flex-col justify-center ml-0 group-hover/logo:ml-3 whitespace-nowrap will-change-[max-width]">
+            {/* Logo Text - Reveals on hover (Desktop) / Always visible (Mobile) */}
+            <div className="max-w-[150px] opacity-100 ml-3 md:max-w-0 md:opacity-0 md:ml-0 md:group-hover/logo:max-w-[150px] md:group-hover/logo:opacity-100 md:group-hover/logo:ml-3 overflow-hidden transition-all duration-500 ease-out flex flex-col justify-center whitespace-nowrap will-change-[max-width]">
                 <span className="text-gray-900 dark:text-white font-black text-sm leading-none tracking-tight">
                 BARTENDER
                 </span>
