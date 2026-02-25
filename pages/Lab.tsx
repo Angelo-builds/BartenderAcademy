@@ -31,8 +31,8 @@ const Lab: React.FC = () => {
         setErrorMsg(null);
         
         // CONFIGURAZIONE OLLAMA
-        const OLLAMA_URL = data.siteConfig.ollamaUrl || 'http://localhost:11434/api/chat';
-        const OLLAMA_MODEL = 'llama3'; 
+        const OLLAMA_URL = 'http://192.168.1.248:11434/api/chat';
+        const OLLAMA_MODEL = 'mixologist'; 
 
         try {
             let userPrompt = '';
