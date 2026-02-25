@@ -77,7 +77,7 @@ const siteConfig_EN: SiteConfig = {
 };
 
 // ITALIAN DATA
-const theory_IT: TheorySection[] = [
+export const theory_IT: TheorySection[] = [
     // ... existing theory items
   {
     id: 't1', category: 'Basi', title: 'Speed Rack & Setup', slug: 'speed-rack-setup', status: 'published',
@@ -222,7 +222,7 @@ Disposizione standard per l'efficienza lavorativa (da destra a sinistra per i de
   }
 ];
 
-const cocktails_IT: Cocktail[] = [
+export const cocktails_IT: Cocktail[] = [
     // ... existing cocktails
   {
     id: 'c101', name: 'Alexander', method: 'Shake & Strain', glass: 'Coppa Martini', category: 'After Dinner', era: 'Vintage', status: 'published',
@@ -355,7 +355,7 @@ const cocktails_IT: Cocktail[] = [
 const theory_EN: TheorySection[] = [
     // ... existing theory items
   {
-    id: 't1', category: 'Basics', title: 'Speed Rack & Setup', status: 'published',
+    id: 't1', category: 'Basics', title: 'Speed Rack & Setup', slug: 'speed-rack-setup', status: 'published',
     image: IMG.SETUP,
     content: `**Speed Rack (Type B)**
 Standard arrangement for workflow efficiency (Right to Left for right-handed):
@@ -372,7 +372,7 @@ Standard arrangement for workflow efficiency (Right to Left for right-handed):
 - **Bar Mats**: Always clean for drainage.`
   },
   {
-    id: 't2', category: 'Basics', title: 'Glassware', status: 'published',
+    id: 't2', category: 'Basics', title: 'Glassware', slug: 'glassware', status: 'published',
     image: IMG.GLASSWARE,
     content: `Glass choice affects drink perception and temperature.
 
@@ -393,7 +393,7 @@ Standard arrangement for workflow efficiency (Right to Left for right-handed):
 - **Hurricane**: Large capacity, for Tiki drinks.`
   },
   {
-    id: 't3', category: 'Rules', title: 'Construction Techniques', status: 'published',
+    id: 't3', category: 'Rules', title: 'Construction Techniques', slug: 'construction-techniques', status: 'published',
     image: IMG.TECHNIQUES,
     content: `**Build**: Direct construction in the glass with ice (e.g., Gin Tonic, Negroni).
 **Stir & Strain**: Mixing in the Mixing Glass with ice, then filtering. For spirit-only drinks that must remain clear (e.g., Martini, Manhattan).

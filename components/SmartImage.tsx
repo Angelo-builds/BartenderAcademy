@@ -7,38 +7,44 @@ interface SmartImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   nameForSlug?: string; // The name to derive the slug from (e.g. "Gin Fizz")
 }
 
-const SmartImage: React.FC<SmartImageProps> = ({ src, alt, nameForSlug, fallbackSrc, className, ...props }) => {
-  const [imgSrc, setImgSrc] = useState<string>('');
-  // 0: local .jpg, 1: local .jpeg, 2: local .png, 3: DB URL, 4: Error
-  const [loadAttempt, setLoadAttempt] = useState(0);
+const getSlug = (name: string) => {
+  return name
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+};
 
-  const getSlug = (name: string) => {
-      return name
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .toLowerCase()
-        .trim()
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/^-+|-+$/g, '');
-  };
+const SmartImage: React.FC<SmartImageProps> = ({ src, alt, nameForSlug, fallbackSrc, className, ...props }) => {
+  const [imgSrc, setImgSrc] = useState<string>(() => {
+      if (nameForSlug) {
+          const slug = getSlug(nameForSlug);
+          return `/images/${slug}.jpg`;
+      }
+      return src || '';
+  });
+  
+  // 0: local .jpg, 1: local .jpeg, 2: local .png, 3: DB URL, 4: Error
+  const [loadAttempt, setLoadAttempt] = useState(() => {
+      return nameForSlug ? 0 : 3;
+  });
 
   useEffect(() => {
       // Reset state when src or name changes
-      setLoadAttempt(0);
-      
       if (nameForSlug) {
           const slug = getSlug(nameForSlug);
           setImgSrc(`/images/${slug}.jpg`);
+          setLoadAttempt(0);
       } else {
-          // If no name provided for slug, just try the provided src
-          setImgSrc(src);
-          setLoadAttempt(3); // Skip local checks
+          setImgSrc(src || '');
+          setLoadAttempt(3);
       }
   }, [src, nameForSlug]);
 
   const handleError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
       if (!nameForSlug) {
-          // If we are not doing slug-based lookup, just fail
           if (fallbackSrc && imgSrc !== fallbackSrc) {
               setImgSrc(fallbackSrc);
           }
@@ -56,8 +62,7 @@ const SmartImage: React.FC<SmartImageProps> = ({ src, alt, nameForSlug, fallback
           setLoadAttempt(2);
           setImgSrc(`/images/${slug}.png`);
       } else if (loadAttempt === 2) {
-          // Try DB Image (if it exists and is not the same as what we just tried)
-          // Note: If src IS one of the local paths, we skip to error to avoid loop
+          // Try DB Image
           if (src && !src.includes(`/images/${slug}`)) {
               setLoadAttempt(3);
               setImgSrc(src);
@@ -70,13 +75,15 @@ const SmartImage: React.FC<SmartImageProps> = ({ src, alt, nameForSlug, fallback
            setLoadAttempt(4);
            if (fallbackSrc) setImgSrc(fallbackSrc);
       }
-      
-      // If props.onError exists, call it? Maybe not needed if we handle it internally.
   };
+
+  const finalSrc = imgSrc || fallbackSrc || src;
+
+  if (!finalSrc) return null;
 
   return (
     <img 
-      src={imgSrc || fallbackSrc || src} 
+      src={finalSrc} 
       alt={alt} 
       className={className}
       onError={handleError}

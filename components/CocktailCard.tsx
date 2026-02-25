@@ -12,14 +12,6 @@ interface Props {
 const CocktailCard: React.FC<Props> = ({ cocktail }) => {
   const { isAdmin, t, favorites, toggleFavorite } = useAppStore();
   const navigate = useNavigate();
-  const [imgSrc, setImgSrc] = useState<string>('');
-  const [imageLoaded, setImageLoaded] = useState(false);
-  const [imageError, setImageError] = useState(false);
-  
-  // 0: local .jpg, 1: local .jpeg, 2: local .png, 3: DB URL, 4: Error
-  const [loadAttempt, setLoadAttempt] = useState(0);
-
-  const isFav = favorites.includes(cocktail.id);
   
   const getSlug = (name: string) => {
       return name
@@ -31,6 +23,19 @@ const CocktailCard: React.FC<Props> = ({ cocktail }) => {
         .replace(/^-+|-+$/g, '');
   };
 
+  const [imgSrc, setImgSrc] = useState<string>(() => {
+      const slug = getSlug(cocktail.name);
+      return `/images/${slug}.jpg`;
+  });
+  
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [imageError, setImageError] = useState(false);
+  
+  // 0: local .jpg, 1: local .jpeg, 2: local .png, 3: DB URL, 4: Error
+  const [loadAttempt, setLoadAttempt] = useState(0);
+
+  const isFav = favorites.includes(cocktail.id);
+  
   useEffect(() => {
       // Reset state when cocktail changes
       setLoadAttempt(0);

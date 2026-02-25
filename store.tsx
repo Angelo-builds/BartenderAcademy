@@ -1,7 +1,7 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { AppData, Cocktail, TheorySection, Language, SiteConfig, Certificate, ShareLink } from './types';
-import { getInitialData } from './data';
+import { getInitialData, theory_IT, cocktails_IT } from './data';
 import { translations } from './translations';
 import { supabase } from './supabaseClient';
 import { User } from '@supabase/supabase-js';
@@ -135,33 +135,87 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         
         if (cocktailsData) {
             const dbCocktails = cocktailsData as Cocktail[];
-            const dbIds = new Set(dbCocktails.map(c => c.id));
-            
-            // 1. Filter Local: Keep only if it exists in DB (Respects Deletions)
-            // If DB is empty (e.g. fresh wipe), this clears everything, which is correct behavior for "DB as source of truth"
-            finalCocktails = finalCocktails.filter(c => dbIds.has(c.id));
+            const dbIdMap = new Set(dbCocktails.map(c => c.id));
+            const dbSlugMap = new Set(dbCocktails.map(c => c.slug).filter(Boolean));
+            const dbNameMap = new Set(dbCocktails.map(c => c.name.toLowerCase()));
 
-            // 2. Add New from DB: Add items that are in DB but not in Local (Respects Additions)
+            // 1. Filter Local: Keep if ID matches OR if Slug/Name matches (to preserve local translation)
+            finalCocktails = finalCocktails.filter(c => {
+                if (dbIdMap.has(c.id)) return true;
+                if (c.slug && dbSlugMap.has(c.slug)) return true;
+                if (dbNameMap.has(c.name.toLowerCase())) return true;
+                return false; // Deleted in DB
+            });
+
+            // 2. Add New from DB
             const localIds = new Set(finalCocktails.map(c => c.id));
-            const newDbItems = dbCocktails.filter(c => !localIds.has(c.id));
+            const localSlugs = new Set(finalCocktails.map(c => c.slug).filter(Boolean));
+            const localNames = new Set(finalCocktails.map(c => c.name.toLowerCase()));
+
+            const newDbItems = dbCocktails.filter(c => {
+                if (localIds.has(c.id)) return false;
+                if (c.slug && localSlugs.has(c.slug)) return false;
+                if (localNames.has(c.name.toLowerCase())) return false;
+                return true;
+            });
             
             finalCocktails = [...finalCocktails, ...newDbItems];
         }
 
         // --- MERGE STRATEGY THEORY ---
-        // Same logic as Cocktails
         let finalTheory = [...localData.theory];
         
         if (theoryData) {
             const dbTheory = theoryData as TheorySection[];
-            const dbIds = new Set(dbTheory.map(t => t.id));
+            const dbIdMap = new Set(dbTheory.map(t => t.id));
+            const dbSlugMap = new Set(dbTheory.map(t => t.slug).filter(Boolean));
+            const dbTitleMap = new Map(dbTheory.map(t => [t.title.toLowerCase(), t]));
 
-            // 1. Filter Local (Respect Deletions)
-            finalTheory = finalTheory.filter(t => dbIds.has(t.id));
+            // Helper to find DB match for a local item
+            const findDbMatch = (localItem: TheorySection) => {
+                // 1. Try ID (if UUID match)
+                if (dbIdMap.has(localItem.id)) return dbTheory.find(t => t.id === localItem.id);
+                
+                // 2. Try Slug
+                if (localItem.slug && dbSlugMap.has(localItem.slug)) return dbTheory.find(t => t.slug === localItem.slug);
 
-            // 2. Add New from DB (Respect Additions)
-            const localIds = new Set(finalTheory.map(t => t.id));
-            const newDbItems = dbTheory.filter(t => !localIds.has(t.id));
+                // 3. Try Title (Direct match)
+                if (dbTitleMap.has(localItem.title.toLowerCase())) return dbTitleMap.get(localItem.title.toLowerCase());
+
+                // 4. Try Cross-Language Title Match (The Fix!)
+                // Find the Italian version of this local item (by ID)
+                const itVersion = theory_IT.find(it => it.id === localItem.id);
+                if (itVersion && dbTitleMap.has(itVersion.title.toLowerCase())) {
+                    return dbTitleMap.get(itVersion.title.toLowerCase());
+                }
+
+                return null;
+            };
+
+            const matchedDbIds = new Set<string>();
+
+            // 1. Update Local Items with DB Status/Image if match found
+            finalTheory = finalTheory.map(localItem => {
+                const match = findDbMatch(localItem);
+                if (match) {
+                    matchedDbIds.add(match.id);
+                    // Keep Local Content (Title, Content) but take DB Status and Image (if updated)
+                    return {
+                        ...localItem,
+                        status: match.status,
+                        image: match.image || localItem.image, // Prefer DB image if exists? Or maybe only if changed? Let's assume DB is source of truth for media.
+                        // We do NOT overwrite title/content to preserve language
+                    };
+                }
+                return localItem;
+            });
+
+            // 2. Add New from DB (that were NOT matched to any local item)
+            const newDbItems = dbTheory.filter(t => !matchedDbIds.has(t.id));
+            
+            // Filter out items that might be duplicates but missed by matching (safety net)
+            // e.g. if we are in EN, and we have "Glassware", and DB has "Cristalleria" (which we matched), we don't want to add "Cristalleria" again.
+            // The matchedDbIds check handles this.
 
             finalTheory = [...finalTheory, ...newDbItems];
         }
