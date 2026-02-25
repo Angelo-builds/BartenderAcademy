@@ -204,7 +204,7 @@ const SectionAccordion: React.FC<{ item: TheorySection, index: number, isAdmin: 
                              <SmartImage 
                                 src={item.image} 
                                 alt={item.title} 
-                                nameForSlug={item.title}
+                                nameForSlug={item.slug || item.title}
                                 className="w-full h-auto object-cover" 
                              />
                              <div className="bg-gray-50 dark:bg-gray-800 p-4">

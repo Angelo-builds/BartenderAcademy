@@ -80,7 +80,7 @@ const siteConfig_EN: SiteConfig = {
 const theory_IT: TheorySection[] = [
     // ... existing theory items
   {
-    id: 't1', category: 'Basics', title: 'Speed Rack & Setup', status: 'published',
+    id: 't1', category: 'Basi', title: 'Speed Rack & Setup', slug: 'speed-rack-setup', status: 'published',
     image: IMG.SETUP,
     content: `**Speed Rack (Tipo B)**
 Disposizione standard per l'efficienza lavorativa (da destra a sinistra per i destrimani):
@@ -97,7 +97,7 @@ Disposizione standard per l'efficienza lavorativa (da destra a sinistra per i de
 - **Bar Mats**: Sempre puliti per il drenaggio.`
   },
   {
-    id: 't2', category: 'Basics', title: 'Cristalleria (Bicchieri)', status: 'published',
+    id: 't2', category: 'Basi', title: 'Cristalleria (Bicchieri)', slug: 'glassware', status: 'published',
     image: IMG.GLASSWARE,
     content: `La scelta del bicchiere influenza la percezione del drink e la temperatura.
 
@@ -118,7 +118,7 @@ Disposizione standard per l'efficienza lavorativa (da destra a sinistra per i de
 - **Hurricane**: Grande capacità, per Tiki drinks.`
   },
   {
-    id: 't3', category: 'Rules', title: 'Tecniche di Costruzione', status: 'published',
+    id: 't3', category: 'Regole', title: 'Tecniche di Costruzione', slug: 'construction-techniques', status: 'published',
     image: IMG.TECHNIQUES,
     content: `**Build**: Costruzione diretta nel bicchiere con ghiaccio (es. Gin Tonic, Negroni).
 **Stir & Strain**: Miscelazione nel Mixing Glass con ghiaccio, poi filtraggio. Per drink di soli alcolici che devono restare limpidi (es. Martini, Manhattan).

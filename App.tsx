@@ -8,7 +8,7 @@ import Cocktails from './pages/Cocktails';
 import Distillates from './pages/Distillates';
 import DistillateDetail from './pages/DistillateDetail';
 import Admin from './pages/Admin';
-import School from './pages/School';
+import Academy from './pages/Academy';
 import Lab from './pages/Lab';
 import Tools from './pages/Tools';
 import ComingSoon from './pages/ComingSoon';
@@ -38,7 +38,7 @@ const MainLayout: React.FC = () => {
             <Route path="/cocktails" element={<Cocktails />} />
             <Route path="/distillates" element={<Distillates />} />
             <Route path="/distillates/:id" element={<DistillateDetail />} />
-            <Route path="/academy" element={<School />} />
+            <Route path="/academy" element={<Academy />} />
             <Route path="/lab" element={<Lab />} />
             <Route path="/tools" element={<Tools />} />
             <Route path="/admin" element={<Admin />} />

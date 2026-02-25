@@ -4,7 +4,7 @@ import { useAppStore } from '../store';
 import { Brain, Layers, Check, X, ChevronRight, ChevronLeft, HelpCircle, RotateCw, Trophy, ArrowLeft } from 'lucide-react';
 import SmartImage from '../components/SmartImage';
 
-const School: React.FC = () => {
+const Academy: React.FC = () => {
     const { data } = useAppStore();
     const [mode, setMode] = useState<'menu' | 'flashcards' | 'quiz'>('menu');
     const [filterCategory, setFilterCategory] = useState<string>('All');
@@ -211,7 +211,7 @@ const School: React.FC = () => {
                                          <SmartImage 
                                             src={item.image} 
                                             alt={item.name} 
-                                            nameForSlug={item.name}
+                                            nameForSlug={item.slug || item.name}
                                             className="w-full h-full object-cover" 
                                          />
                                      ) : (
@@ -375,4 +375,4 @@ const School: React.FC = () => {
     );
 };
 
-export default School;
+export default Academy;

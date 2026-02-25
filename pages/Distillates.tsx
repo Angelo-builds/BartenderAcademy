@@ -146,7 +146,7 @@ const Distillates: React.FC = () => {
                     <SmartImage 
                         src={item.image} 
                         alt={item.title} 
-                        nameForSlug={item.title}
+                        nameForSlug={item.slug || item.title}
                         className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110 opacity-80 group-hover:opacity-60"
                         loading="lazy"
                     />

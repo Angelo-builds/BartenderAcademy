@@ -53,15 +53,44 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 const isLocalId = (id: string) => id.length < 30;
 
 export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [language, setLanguage] = useState<Language>('it');
-  
-  // Always start with the correct local data based on language to ensure translations are immediate
-  const [data, setData] = useState<AppData>(getInitialData('it'));
+  // Theme State - Persisted
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
+      if (typeof window !== 'undefined') {
+          const saved = localStorage.getItem('bartender_theme');
+          if (saved) return saved === 'dark';
+          return window.matchMedia('(prefers-color-scheme: dark)').matches;
+      }
+      return false;
+  });
+
+  // Language State - Persisted
+  const [language, setLanguageState] = useState<Language>(() => {
+      if (typeof window !== 'undefined') {
+          const saved = localStorage.getItem('bartender_language');
+          return (saved === 'it' || saved === 'en') ? saved : 'it';
+      }
+      return 'it';
+  });
+
+  const setLanguage = (lang: Language) => {
+      setLanguageState(lang);
+      localStorage.setItem('bartender_language', lang);
+  };
+
+  // Always start with the correct local data based on language
+  const [data, setData] = useState<AppData>(() => getInitialData(language));
   const [isLoading, setIsLoading] = useState(true);
   
   // Auth State
   const [user, setUser] = useState<User | null>(null);
-  const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
+  
+  const toggleTheme = () => {
+      setIsDarkMode(prev => {
+          const newMode = !prev;
+          localStorage.setItem('bartender_theme', newMode ? 'dark' : 'light');
+          return newMode;
+      });
+  };
 
   // Favorites State (Persisted in LocalStorage)
   const [favorites, setFavorites] = useState<string[]>(() => {
@@ -101,34 +130,39 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         const { data: configData } = await supabase.from('site_config').select('*').single();
 
         // --- MERGE STRATEGY COCKTAILS ---
-        let finalCocktails: Cocktail[] = [];
+        // Goal: Respect DB deletions/additions but PRESERVE local translations.
+        let finalCocktails = [...localData.cocktails];
         
         if (cocktailsData) {
-            // If DB fetch succeeded (even if empty), use it as the source of truth.
-            finalCocktails = cocktailsData as Cocktail[];
-        } else {
-            // Only fall back to local data if DB fetch failed (null/undefined)
-            finalCocktails = [...localData.cocktails];
+            const dbCocktails = cocktailsData as Cocktail[];
+            const dbIds = new Set(dbCocktails.map(c => c.id));
+            
+            // 1. Filter Local: Keep only if it exists in DB (Respects Deletions)
+            // If DB is empty (e.g. fresh wipe), this clears everything, which is correct behavior for "DB as source of truth"
+            finalCocktails = finalCocktails.filter(c => dbIds.has(c.id));
+
+            // 2. Add New from DB: Add items that are in DB but not in Local (Respects Additions)
+            const localIds = new Set(finalCocktails.map(c => c.id));
+            const newDbItems = dbCocktails.filter(c => !localIds.has(c.id));
+            
+            finalCocktails = [...finalCocktails, ...newDbItems];
         }
 
         // --- MERGE STRATEGY THEORY ---
+        // Same logic as Cocktails
         let finalTheory = [...localData.theory];
+        
         if (theoryData) {
             const dbTheory = theoryData as TheorySection[];
-            const dbTheoryMap = new Map(dbTheory.map(t => [t.id, t]));
-            const dbTitles = new Set(dbTheory.map(t => t.title.toLowerCase().trim()));
+            const dbIds = new Set(dbTheory.map(t => t.id));
 
-            finalTheory = finalTheory.filter(localT => {
-                if (dbTheoryMap.has(localT.id)) return true;
-                if (isLocalId(localT.id) && dbTitles.has(localT.title.toLowerCase().trim())) return false;
-                return true;
-            });
+            // 1. Filter Local (Respect Deletions)
+            finalTheory = finalTheory.filter(t => dbIds.has(t.id));
 
-            finalTheory = finalTheory.map(localT => 
-                dbTheoryMap.has(localT.id) ? dbTheoryMap.get(localT.id) as TheorySection : localT
-            );
-            const currentIds = new Set(finalTheory.map(t => t.id));
-            const newDbItems = dbTheory.filter(t => !currentIds.has(t.id));
+            // 2. Add New from DB (Respect Additions)
+            const localIds = new Set(finalTheory.map(t => t.id));
+            const newDbItems = dbTheory.filter(t => !localIds.has(t.id));
+
             finalTheory = [...finalTheory, ...newDbItems];
         }
 
@@ -180,8 +214,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       document.documentElement.classList.remove('dark');
     }
   }, [isDarkMode]);
-
-  const toggleTheme = () => setIsDarkMode(prev => !prev);
   const t = translations[language];
 
   // --- AUTH ---

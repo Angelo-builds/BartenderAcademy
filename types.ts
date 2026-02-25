@@ -9,6 +9,7 @@ export interface Ingredient {
 export interface Cocktail {
   id: string; // UUID in Supabase
   name: string;
+  slug?: string; // For consistent image naming across languages
   image: string;
   method: string;
   glass: string;
@@ -23,8 +24,9 @@ export interface Cocktail {
 export interface TheorySection {
   id: string;
   title: string;
+  slug?: string; // For consistent image naming across languages
   content: string;
-  category: 'Basics' | 'Rules' | 'Distillates';
+  category: 'Basics' | 'Rules' | 'Distillates' | 'Basi' | 'Regole'; // Added Italian categories for type safety
   image?: string;
   status?: 'published' | 'draft';
 }

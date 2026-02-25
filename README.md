@@ -1,20 +1,65 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# Bartender Academy App
 
-# Run and deploy your AI Studio app
+Benvenuto nella documentazione tecnica del progetto Bartender Academy.
+Questa applicazione è una piattaforma completa per la formazione di bartender, che include ricettari, teoria, quiz e gestione certificati.
 
-This contains everything you need to run your app locally.
+## Funzionalità Principali
 
-View your app in AI Studio: https://ai.studio/apps/6db4d6e7-719f-413c-8048-69d35281ec54
+### 1. Ricettario Cocktails (`/cocktails`)
+- **Lista Completa:** Visualizza tutti i cocktail IBA e moderni.
+- **Filtri:** Filtra per categoria (Pre Dinner, After Dinner, Long Drink, etc.) o Era (Vintage, Classic, Modern).
+- **Ricerca:** Cerca per nome o ingrediente.
+- **Dettaglio:** Scheda tecnica con ingredienti, metodo, bicchiere e guarnizione.
+- **Immagini Locali:** Supporto per immagini caricate localmente nella cartella `/public/images`.
 
-## Run Locally
+### 2. Bartender Academy (`/academy`)
+- **Flashcards:** Modalità di studio interattiva. Gira la carta per vedere ricetta e metodo.
+- **Speed Quiz:** Test a tempo per verificare la conoscenza degli ingredienti.
+- **Gamification:** Punteggi e feedback immediato.
 
-**Prerequisites:**  Node.js
+### 3. Teoria & Manuale (`/theory`)
+- **Manuale Operativo:** Guide su Setup, Bicchieri e Tecniche.
+- **Distillati (`/distillates`):** Enciclopedia completa sui principali spiriti (Vodka, Gin, Rum, Tequila, Whisky, Brandy).
+- **Immagini:** Ogni sezione ha un'immagine associata che può essere personalizzata localmente.
 
+### 4. Strumenti Utili
+- **Convertitore Unità:** Calcolatore integrato per convertire oz/ml/cl.
+- **Admin Panel (`/admin`):**
+  - Gestione completa del database (Aggiungi/Modifica/Elimina Cocktails e Teoria).
+  - Configurazione del sito (Titoli, Sottotitoli, Immagini di copertina).
+  - Gestione Certificati studenti.
+  - Sincronizzazione dati locali -> Database.
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+## Gestione Immagini
+
+Il sistema utilizza un componente intelligente (`SmartImage`) per gestire le immagini.
+Priorità di caricamento:
+1. **Immagine Locale (Inglese):** Cerca in `/public/images/` usando lo slug inglese (es. `glassware.jpg`).
+2. **Immagine Locale (Nome Esatto):** Cerca usando il nome esatto (es. `Cristalleria.jpg`).
+3. **URL Database:** Se non trova nulla in locale, usa l'URL salvato nel database (es. Unsplash).
+
+Per i dettagli sui nomi dei file, consulta il file `README.md` all'interno della cartella `/public/images`.
+
+## Installazione e Avvio
+
+1. **Installare le dipendenze:**
+   ```bash
+   npm install
+   ```
+
+2. **Avviare il server di sviluppo:**
+   ```bash
+   npm run dev
+   ```
+
+3. **Build per produzione:**
+   ```bash
+   npm run build
+   ```
+
+## Tecnologie
+
+- **Frontend:** React, TypeScript, Tailwind CSS, Vite.
+- **Backend/Database:** Supabase.
+- **Icone:** Lucide React.
+- **Routing:** React Router Dom.

@@ -25,7 +25,7 @@ const DistillateDetail: React.FC = () => {
                 <SmartImage 
                     src={item.image} 
                     alt={item.title}
-                    nameForSlug={item.title} 
+                    nameForSlug={item.slug || item.title} 
                     className="w-full h-full object-cover"
                 />
                 <div className="absolute inset-0 bg-black/30"></div>

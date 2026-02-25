@@ -6,6 +6,7 @@ import { useAppStore } from '../store';
 import { Cocktail, SiteConfig } from '../types';
 import EditModal, { EditField } from '../components/EditModal';
 import { translations } from '../translations';
+import SmartImage from '../components/SmartImage';
 
 const Home: React.FC = () => {
   const { t, data, isAdmin, updateSiteConfig, language } = useAppStore();
@@ -151,9 +152,10 @@ const Home: React.FC = () => {
               {featuredCocktail && (
                   <div className="md:col-span-2 relative h-96 group overflow-hidden rounded-3xl cursor-pointer">
                       <Link to="/cocktails">
-                        <img 
+                        <SmartImage 
                             src={featuredCocktail.image} 
                             alt={featuredCocktail.name} 
+                            nameForSlug={featuredCocktail.slug || featuredCocktail.name}
                             className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent"></div>
