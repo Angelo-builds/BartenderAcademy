@@ -1,65 +1,104 @@
-# Bartender Academy App
+# 🍸 Bartender Academy
+> Una piattaforma completa per la formazione professionale di bartender: ricettari IBA, teoria interattiva, quiz e gestione avanzata.
 
-Benvenuto nella documentazione tecnica del progetto Bartender Academy.
-Questa applicazione è una piattaforma completa per la formazione di bartender, che include ricettari, teoria, quiz e gestione certificati.
+[![Live Demo](https://img.shields.io/badge/demo-live-brightgreen?style=for-the-badge&logo=vercel)](https://bartender.angihomelab.com)
+[![React](https://img.shields.io/badge/React-19-blue?style=for-the-badge&logo=react)](https://react.dev/)
+[![Supabase](https://img.shields.io/badge/Database-Supabase-green?style=for-the-badge&logo=supabase)](https://supabase.com/)
 
-## Funzionalità Principali
+---
 
-### 1. Ricettario Cocktails (`/cocktails`)
-- **Lista Completa:** Visualizza tutti i cocktail IBA e moderni.
-- **Filtri:** Filtra per categoria (Pre Dinner, After Dinner, Long Drink, etc.) o Era (Vintage, Classic, Modern).
-- **Ricerca:** Cerca per nome o ingrediente.
-- **Dettaglio:** Scheda tecnica con ingredienti, metodo, bicchiere e guarnizione.
-- **Immagini Locali:** Supporto per immagini caricate localmente nella cartella `/public/images`.
+## 🚀 Funzionalità Principali
 
-### 2. Bartender Academy (`/academy`)
-- **Flashcards:** Modalità di studio interattiva. Gira la carta per vedere ricetta e metodo.
-- **Speed Quiz:** Test a tempo per verificare la conoscenza degli ingredienti.
-- **Gamification:** Punteggi e feedback immediato.
+### 📖 Ricettario & Academy
+* **Database Cocktails:** Consultazione completa di cocktail IBA e moderni con filtri per categoria ed era.
+* **Academy Interattiva:** Flashcards per lo studio mnemonico e Speed Quiz per testare i riflessi sulle ricette.
+* **Enciclopedia dei Distillati:** Sezione dedicata alla teoria su Vodka, Gin, Rum, Tequila, Whisky e Brandy.
 
-### 3. Teoria & Manuale (`/theory`)
-- **Manuale Operativo:** Guide su Setup, Bicchieri e Tecniche.
-- **Distillati (`/distillates`):** Enciclopedia completa sui principali spiriti (Vodka, Gin, Rum, Tequila, Whisky, Brandy).
-- **Immagini:** Ogni sezione ha un'immagine associata che può essere personalizzata localmente.
+### 🛠️ Strumenti & Admin
+* **Convertitore Unità:** Calcolo rapido tra oz, ml e cl.
+* **Admin Panel:** Dashboard protetta per gestire il database, configurare il sito e gestire i certificati degli studenti.
+* **Sincronizzazione Automatica:** Gestione del flusso dati tra modifiche locali e database Supabase.
 
-### 4. Strumenti Utili
-- **Convertitore Unità:** Calcolatore integrato per convertire oz/ml/cl.
-- **Admin Panel (`/admin`):**
-  - Gestione completa del database (Aggiungi/Modifica/Elimina Cocktails e Teoria).
-  - Configurazione del sito (Titoli, Sottotitoli, Immagini di copertina).
-  - Gestione Certificati studenti.
-  - Sincronizzazione dati locali -> Database.
+---
 
-## Gestione Immagini
+## 🖼️ Gestione Intelligente Immagini
+Il sistema utilizza il componente `SmartImage` per garantire una navigazione fluida senza link rotti, seguendo questa gerarchia:
 
-Il sistema utilizza un componente intelligente (`SmartImage`) per gestire le immagini.
-Priorità di caricamento:
-1. **Immagine Locale (Inglese):** Cerca in `/public/images/` usando lo slug inglese (es. `glassware.jpg`).
-2. **Immagine Locale (Nome Esatto):** Cerca usando il nome esatto (es. `Cristalleria.jpg`).
-3. **URL Database:** Se non trova nulla in locale, usa l'URL salvato nel database (es. Unsplash).
+1.  **Locale (Slug):** Cerca in `/public/images/` usando lo slug inglese (es: `negroni.jpg`).
+2.  **Locale (Nome):** Cerca usando il nome esatto del file salvato (es: `Cristalleria.jpg`).
+3.  **Fallback Cloud:** Se i file locali mancano, carica l'URL remoto salvato nel database (es. Unsplash).
 
-Per i dettagli sui nomi dei file, consulta il file `README.md` all'interno della cartella `/public/images`.
+---
 
-## Installazione e Avvio
+## 🛠️ Tech Stack
+* **Frontend:** React 19, TypeScript, Vite, Tailwind CSS.
+* **Backend/Database:** Supabase (PostgreSQL).
+* **Hosting:** Proxmox LXC Container con PM2 per la gestione dei processi.
+* **AI Integration:** Supporto per mixology AI tramite Ollama (Llama 3).
 
-1. **Installare le dipendenze:**
-   ```bash
-   npm install
-   ```
+---
 
-2. **Avviare il server di sviluppo:**
-   ```bash
-   npm run dev
-   ```
+## 📦 Installazione e Deployment
 
-3. **Build per produzione:**
-   ```bash
-   npm run build
-   ```
+<details>
+<summary><b>Clicca per espandere le istruzioni di installazione locale</b></summary>
 
-## Tecnologie
+### Prerequisiti
+* Node.js (versione consigliata 18+)
+* Un'istanza Supabase attiva
 
-- **Frontend:** React, TypeScript, Tailwind CSS, Vite.
-- **Backend/Database:** Supabase.
-- **Icone:** Lucide React.
-- **Routing:** React Router Dom.
+### Setup Locale
+1.  **Clona la repository:**
+    ```bash
+    git clone [https://github.com/Angelo-builds/BartenderAcademy.git](https://github.com/Angelo-builds/BartenderAcademy.git)
+    cd BartenderAcademy
+    ```
+2.  **Installa le dipendenze:**
+    ```bash
+    npm install
+    ```
+3.  **Configura le variabili d'ambiente:**
+    Crea un file `.env` con le tue chiavi Supabase:
+    ```env
+    VITE_SUPABASE_URL=tua_url
+    VITE_SUPABASE_ANON_KEY=tua_key
+    ```
+4.  **Avvia in sviluppo:**
+    ```bash
+    npm run dev
+    ```
+</details>
+
+<details>
+<summary><b>Deployment Produzione (LXC + PM2)</b></summary>
+
+Per aggiornare il tuo container Proxmox:
+1.  Assicurati che il remote sia corretto sul container:
+    ```bash
+    git remote set-url origin [https://github.com/Angelo-builds/BartenderAcademy.git](https://github.com/Angelo-builds/BartenderAcademy.git)
+    ```
+2.  Esegui lo script di aggiornamento:
+    ```bash
+    ./update.sh
+    ```
+</details>
+
+---
+
+## 📂 Risorse e Documentazione Locale
+<details>
+<summary><b>Dettagli cartelle manuali</b></summary>
+
+* `/theory`: Manuale operativo su setup, bicchieri e tecniche.
+* `/public/images`: Cartella per i media locali. Consulta il `README.md` interno alla cartella per le convenzioni sui nomi.
+* `/admin`: Dashboard per la gestione dei certificati e sincronizzazione database.
+</details>
+
+---
+
+## 🔗 Link Utili
+* **Demo Live:** [bartender.angihomelab.com](https://bartender.angihomelab.com)
+* **Repository:** [GitHub](https://github.com/Angelo-builds/BartenderAcademy)
+
+---
+**Sviluppato con ❤️ da Angelo per la Bartender Academy.**
