@@ -22,7 +22,7 @@ const Chatbot: React.FC = () => {
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     // CONFIGURAZIONE OLLAMA
-    const OLLAMA_URL = 'http://192.168.1.248:11434/api/chat';
+    const OLLAMA_URL = '/api/chat';
     const OLLAMA_MODEL = 'mixologist'; // Cambia con 'mistral', 'gemma:2b', etc.
 
     const scrollToBottom = () => {
