@@ -229,7 +229,7 @@ const Admin: React.FC = () => {
       if (selectedCertsForShare.length === 0) return;
       const name = `Link generato il ${new Date().toLocaleDateString()}`;
       const slug = await createShareLink(selectedCertsForShare, shareExpiration ? shareExpiration : null, name);
-      const url = `${window.location.origin}${window.location.pathname}#/shared/${slug}`;
+      const url = `${window.location.origin}/${language || 'it'}/shared/${slug}`;
       setGeneratedLink(url);
   };
   const copyToClipboard = () => {
