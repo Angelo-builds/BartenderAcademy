@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { HashRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
 import Theory from './pages/Theory';
@@ -57,9 +57,9 @@ const MainLayout: React.FC = () => {
 const App: React.FC = () => {
   return (
     <AppProvider>
-      <HashRouter>
+      <BrowserRouter>
         <MainLayout />
-      </HashRouter>
+      </BrowserRouter>
     </AppProvider>
   );
 };
