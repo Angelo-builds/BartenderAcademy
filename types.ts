@@ -56,10 +56,14 @@ export interface SiteConfig {
   homeQuote: string;
   theoryHeroImage?: string;
   theoryTitle?: string;
+  theoryTitleEn?: string;
   theorySubtitle?: string;
+  theorySubtitleEn?: string;
   distillatesHeroImage?: string;
   distillatesTitle?: string;
+  distillatesTitleEn?: string;
   distillatesSubtitle?: string;
+  distillatesSubtitleEn?: string;
   ollamaUrl?: string; // New field for dynamic Ollama connection
 }
 
