@@ -1,19 +1,34 @@
 
 import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X, Sun, Moon, User, Martini, GraduationCap, BookOpen, FlaskConical, Sparkles, Calculator, Wine, LogIn, LogOut } from 'lucide-react';
 import { useAppStore } from '../store';
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { isDarkMode, toggleTheme, isAdmin, language, setLanguage, t, logout, user } = useAppStore();
+  const { isDarkMode, toggleTheme, isAdmin, language, t, logout, user } = useAppStore();
   const location = useLocation();
+  const navigate = useNavigate();
 
-  const isActive = (path: string) => location.pathname === path;
+  // Helper to check active path (ignoring lang prefix for logic if needed, but here we compare full path)
+  // We check if the current pathname ends with the target path (e.g. /it/theory ends with /theory)
+  const isActive = (path: string) => {
+      // path is like '/theory'
+      // location.pathname is like '/it/theory'
+      return location.pathname.endsWith(path);
+  };
 
   const toggleLanguage = () => {
-      setLanguage(language === 'it' ? 'en' : 'it');
+      const newLang = language === 'it' ? 'en' : 'it';
+      // Replace the current language segment in the URL
+      // Assuming URL is /:lang/...
+      const currentPath = location.pathname;
+      const newPath = currentPath.replace(/^\/(it|en)/, `/${newLang}`);
+      navigate(newPath);
   };
+
+  // Helper to generate language-prefixed paths
+  const getPath = (path: string) => `/${language}${path}`;
 
   // --- REUSABLE STYLES ---
   // Base style for the "Pill" button - Added transform-gpu for performance
@@ -38,7 +53,7 @@ const Navbar: React.FC = () => {
 
   // Helper component for Nav Items
   const NavItem = ({ to, icon: Icon, label, active }: { to: string, icon: any, label: string, active: boolean }) => (
-    <Link to={to} className={getItemClass(active)}>
+    <Link to={getPath(to)} className={getItemClass(active)}>
         <Icon size={18} strokeWidth={active ? 2.5 : 2} className="flex-shrink-0" />
         <span className={textClass(active)}>
             {label}
@@ -60,7 +75,7 @@ const Navbar: React.FC = () => {
         <div className="pointer-events-auto bg-white/90 dark:bg-black/90 backdrop-blur-xl border border-white/20 dark:border-gray-800 shadow-2xl shadow-black/10 rounded-full p-1.5 flex items-center gap-0 transition-all duration-300 max-w-[calc(100vw-2rem)] overflow-x-auto no-scrollbar transform-gpu">
           
           {/* 1. LOGO SECTION */}
-          <Link to="/" className="flex items-center gap-0 group/logo pr-2 pl-1">
+          <Link to={getPath('/')} className="flex items-center gap-0 group/logo pr-2 pl-1">
              <div className="relative flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-brand-orange to-red-600 dark:from-night-blue dark:to-night-azure shadow-lg shadow-orange-500/20 dark:shadow-blue-500/20 group-hover/logo:scale-105 transition-transform flex-shrink-0">
                 <Martini className="text-white w-5 h-5 -ml-0.5" strokeWidth={2.5} />
             </div>
@@ -159,21 +174,21 @@ const Navbar: React.FC = () => {
       {/* Mobile Menu Overlay */}
       {isOpen && (
         <div className="fixed inset-0 z-40 bg-white/95 dark:bg-black/95 backdrop-blur-xl animate-fadeIn pt-28 px-6 flex flex-col items-center gap-6 overflow-y-auto">
-            <Link to="/theory" onClick={() => setIsOpen(false)} className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-3"><BookOpen size={20} />{t.nav.theory}</Link>
-            <Link to="/distillates" onClick={() => setIsOpen(false)} className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-3"><FlaskConical size={20} />{t.nav.distillates}</Link>
+            <Link to={getPath("/theory")} onClick={() => setIsOpen(false)} className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-3"><BookOpen size={20} />{t.nav.theory}</Link>
+            <Link to={getPath("/distillates")} onClick={() => setIsOpen(false)} className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-3"><FlaskConical size={20} />{t.nav.distillates}</Link>
             <div className="w-12 h-px bg-gray-200 dark:bg-gray-800"></div>
-            <Link to="/academy" onClick={() => setIsOpen(false)} className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-3"><GraduationCap size={20} />{t.nav.training}</Link>
+            <Link to={getPath("/academy")} onClick={() => setIsOpen(false)} className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-3"><GraduationCap size={20} />{t.nav.training}</Link>
             <div className="w-12 h-px bg-gray-200 dark:bg-gray-800"></div>
-            <Link to="/cocktails" onClick={() => setIsOpen(false)} className="text-xl font-bold text-brand-orange dark:text-night-azure flex items-center gap-3"><Wine size={20} />{t.nav.cocktails}</Link>
-            <Link to="/lab" onClick={() => setIsOpen(false)} className="text-xl font-bold text-purple-600 dark:text-purple-400 flex items-center gap-3"><Sparkles size={20} />{t.nav.lab}</Link>
+            <Link to={getPath("/cocktails")} onClick={() => setIsOpen(false)} className="text-xl font-bold text-brand-orange dark:text-night-azure flex items-center gap-3"><Wine size={20} />{t.nav.cocktails}</Link>
+            <Link to={getPath("/lab")} onClick={() => setIsOpen(false)} className="text-xl font-bold text-purple-600 dark:text-purple-400 flex items-center gap-3"><Sparkles size={20} />{t.nav.lab}</Link>
             <div className="w-full h-px bg-gray-200 dark:bg-gray-800 my-2"></div>
-            <Link to="/tools" onClick={() => setIsOpen(false)} className="text-lg font-bold text-gray-600 dark:text-gray-400 flex items-center gap-2"><Calculator size={20} /> Bar Tools</Link>
+            <Link to={getPath("/tools")} onClick={() => setIsOpen(false)} className="text-lg font-bold text-gray-600 dark:text-gray-400 flex items-center gap-2"><Calculator size={20} /> Bar Tools</Link>
             <button onClick={() => {toggleLanguage(); setIsOpen(false);}} className="text-lg font-bold text-gray-500">
                 {language === 'it' ? 'Lingua: Italiano' : 'Language: English'}
             </button>
             {user ? (
                <>
-                 <Link to="/admin" onClick={() => setIsOpen(false)} className="text-lg font-bold text-gray-500 flex items-center gap-2">
+                 <Link to={getPath("/admin")} onClick={() => setIsOpen(false)} className="text-lg font-bold text-gray-500 flex items-center gap-2">
                     <User size={20} /> Admin Dashboard
                  </Link>
                  <button onClick={() => {logout(); setIsOpen(false);}} className="text-lg font-bold text-red-500 flex items-center gap-2">
@@ -181,7 +196,7 @@ const Navbar: React.FC = () => {
                  </button>
                </>
             ) : (
-                <Link to="/admin" onClick={() => setIsOpen(false)} className="text-lg font-bold text-gray-500 flex items-center gap-2">
+                <Link to={getPath("/admin")} onClick={() => setIsOpen(false)} className="text-lg font-bold text-gray-500 flex items-center gap-2">
                      <LogIn size={20} /> {language === 'it' ? 'Accedi' : 'Login'}
                 </Link>
             )}
