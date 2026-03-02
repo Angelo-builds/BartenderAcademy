@@ -7,7 +7,7 @@ import { Award, Calendar, AlertCircle, X, ZoomIn, FileText } from 'lucide-react'
 
 const SharedCertificates: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const { getSharedLink, data } = useAppStore();
+  const { getSharedLink, data, t } = useAppStore();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [certificates, setCertificates] = useState<Certificate[]>([]);
@@ -15,7 +15,7 @@ const SharedCertificates: React.FC = () => {
 
   useEffect(() => {
     if (!id) {
-        setError('Link non valido');
+        setError(t.shared.invalidLink);
         setLoading(false);
         return;
     }
@@ -23,7 +23,7 @@ const SharedCertificates: React.FC = () => {
     const linkData = getSharedLink(id);
     
     if (!linkData) {
-        setError('Link inesistente o scaduto.');
+        setError(t.shared.notFound);
         setLoading(false);
         return;
     }
@@ -33,7 +33,7 @@ const SharedCertificates: React.FC = () => {
         const now = new Date();
         const exp = new Date(linkData.expirationDate);
         if (now > exp) {
-            setError('Questo link è scaduto.');
+            setError(t.shared.expiredLink);
             setLoading(false);
             return;
         }
@@ -44,7 +44,7 @@ const SharedCertificates: React.FC = () => {
     setCertificates(foundCerts);
     setLoading(false);
 
-  }, [id, data.certificates, getSharedLink]);
+  }, [id, data.certificates, getSharedLink, t]);
 
   if (loading) return <div className="min-h-screen bg-gray-50 dark:bg-black flex items-center justify-center"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-orange"></div></div>;
 
@@ -53,7 +53,7 @@ const SharedCertificates: React.FC = () => {
           <div className="min-h-screen bg-gray-50 dark:bg-black flex flex-col items-center justify-center p-6 text-center">
               <div className="bg-white dark:bg-gray-900 p-8 rounded-3xl shadow-xl max-w-md w-full border border-gray-100 dark:border-gray-800">
                 <AlertCircle size={48} className="text-red-500 mx-auto mb-4" />
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Accesso Negato</h2>
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">{t.shared.accessDenied}</h2>
                 <p className="text-gray-500">{error}</p>
               </div>
           </div>
@@ -75,9 +75,9 @@ const SharedCertificates: React.FC = () => {
                 <Award className="text-white w-8 h-8" strokeWidth={2} />
             </div>
             <h1 className="text-4xl md:text-5xl font-black text-gray-900 dark:text-white tracking-tight mb-4">
-                Certificazioni Ufficiali
+                {t.shared.title}
             </h1>
-            <p className="text-gray-500 text-lg">Portfolio Professionale Verificato</p>
+            <p className="text-gray-500 text-lg">{t.shared.subtitle}</p>
         </div>
 
         <div className="max-w-6xl mx-auto space-y-16">
@@ -134,7 +134,7 @@ const SharedCertificates: React.FC = () => {
         )}
 
          <div className="mt-20 text-center text-xs text-gray-400">
-            Powered by BartenderSchool App
+            {t.shared.poweredBy}
         </div>
     </div>
   );
