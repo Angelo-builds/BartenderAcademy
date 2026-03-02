@@ -187,12 +187,66 @@ export const translations = {
           linkCopied: 'Link copiato!'
       }
     },
+    academy: {
+        gymArea: 'Gym Area',
+        title: 'Bartender Academy',
+        subtitle: 'Scegli la tua modalità di allenamento e affina le tue conoscenze.',
+        filterAll: 'Tutto il Database',
+        flashcards: {
+            title: 'Flashcards',
+            desc: 'Memorizza ricette, ingredienti e bicchieri girando le carte.',
+            start: 'Inizia Sessione',
+            flip: 'Clicca per girare',
+            back: 'Clicca per tornare',
+            recipe: 'Ricetta',
+            method: 'Metodo',
+            exit: 'Esci'
+        },
+        quiz: {
+            title: 'Speed Quiz',
+            desc: 'Mettiti alla prova. Indovina gli ingredienti corretti per ogni drink.',
+            start: 'Inizia Quiz',
+            question: 'Quali sono gli ingredienti per il',
+            questionPre: 'Domanda',
+            of: 'di',
+            completed: 'Quiz Completato!',
+            perfect: 'Perfetto! Sei un maestro.',
+            good: 'Ottimo lavoro, continua ad allenarti!',
+            backToMenu: 'Torna al Menu'
+        },
+        noResults: 'Nessun drink trovato con questi filtri.'
+    },
     common: {
         comingSoon: 'In Arrivo'
     },
     chatbot: {
         welcome: 'Dalla teoria al bicchiere: chiedimi qualsiasi cosa sul mondo della mixology!',
         placeholder: 'Chiedi al bartender...'
+    },
+    shared: {
+        title: 'Certificazioni Ufficiali',
+        subtitle: 'Portfolio Professionale Verificato',
+        accessDenied: 'Accesso Negato',
+        invalidLink: 'Link non valido',
+        expiredLink: 'Questo link è scaduto.',
+        notFound: 'Link inesistente o scaduto.',
+        poweredBy: 'Powered by BartenderSchool App'
+    },
+    tools: {
+        badge: 'Utility',
+        title: 'Bar Tools',
+        desc: 'Convertitore universale per Barman. Calcola dosaggi, free pouring e unità di misura in tempo reale.',
+        oz: 'Oz (Oncia)',
+        ml: 'Ml (Millilitri)',
+        cl: 'Cl (Centilitri)',
+        metalPour: 'Metal Pour (Tempi)',
+        metalPourDesc: 'Calibrato su Metal Pour standard (1 Tempo = 1/4 oz)',
+        metronomeActive: 'METRONOMO ATTIVO (157 BPM)',
+        startMetronome: 'AVVIA METRONOMO (157 BPM)',
+        counts: 'COUNTS',
+        splash: 'Splash',
+        dash: 'Dash',
+        reset: 'Reset Valori'
     }
   },
   en: {
@@ -380,12 +434,66 @@ export const translations = {
           linkCopied: 'Link copied!'
       }
     },
+    academy: {
+        gymArea: 'Gym Area',
+        title: 'Bartender Academy',
+        subtitle: 'Choose your training mode and refine your knowledge.',
+        filterAll: 'All Database',
+        flashcards: {
+            title: 'Flashcards',
+            desc: 'Memorize recipes, ingredients, and glassware by flipping cards.',
+            start: 'Start Session',
+            flip: 'Click to flip',
+            back: 'Click to return',
+            recipe: 'Recipe',
+            method: 'Method',
+            exit: 'Exit'
+        },
+        quiz: {
+            title: 'Speed Quiz',
+            desc: 'Test yourself. Guess the correct ingredients for each drink.',
+            start: 'Start Quiz',
+            question: 'What are the ingredients for',
+            questionPre: 'Question',
+            of: 'of',
+            completed: 'Quiz Completed!',
+            perfect: 'Perfect! You are a master.',
+            good: 'Great job, keep training!',
+            backToMenu: 'Back to Menu'
+        },
+        noResults: 'No drinks found with these filters.'
+    },
     common: {
         comingSoon: 'Coming Soon'
     },
     chatbot: {
         welcome: 'From theory to glass: ask me anything about the world of mixology!',
         placeholder: 'Ask the bartender...'
+    },
+    shared: {
+        title: 'Official Certifications',
+        subtitle: 'Verified Professional Portfolio',
+        accessDenied: 'Access Denied',
+        invalidLink: 'Invalid Link',
+        expiredLink: 'This link has expired.',
+        notFound: 'Link not found or expired.',
+        poweredBy: 'Powered by BartenderSchool App'
+    },
+    tools: {
+        badge: 'Utility',
+        title: 'Bar Tools',
+        desc: 'Universal Bartender Converter. Calculate dosages, free pouring, and units of measurement in real-time.',
+        oz: 'Oz (Ounce)',
+        ml: 'Ml (Milliliters)',
+        cl: 'Cl (Centiliters)',
+        metalPour: 'Metal Pour (Counts)',
+        metalPourDesc: 'Calibrated to standard Metal Pour (1 Count = 1/4 oz)',
+        metronomeActive: 'METRONOME ACTIVE (157 BPM)',
+        startMetronome: 'START METRONOME (157 BPM)',
+        counts: 'COUNTS',
+        splash: 'Splash',
+        dash: 'Dash',
+        reset: 'Reset Values'
     }
   }
 };
