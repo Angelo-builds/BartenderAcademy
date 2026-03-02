@@ -5,7 +5,7 @@ import { Brain, Layers, Check, X, ChevronRight, ChevronLeft, HelpCircle, RotateC
 import SmartImage from '../components/SmartImage';
 
 const Academy: React.FC = () => {
-    const { data } = useAppStore();
+    const { data, t } = useAppStore();
     const [mode, setMode] = useState<'menu' | 'flashcards' | 'quiz'>('menu');
     const [filterCategory, setFilterCategory] = useState<string>('All');
     
@@ -99,10 +99,10 @@ const Academy: React.FC = () => {
     const renderMenu = () => (
         <div className="max-w-5xl mx-auto py-12 px-4 animate-fadeIn">
             <div className="text-center mb-16">
-                <span className="text-brand-orange font-bold tracking-[0.2em] uppercase text-xs mb-4 block">Gym Area</span>
-                <h1 className="text-5xl md:text-6xl font-black text-gray-900 dark:text-white mb-6">Bartender Academy</h1>
+                <span className="text-brand-orange font-bold tracking-[0.2em] uppercase text-xs mb-4 block">{t.academy.gymArea}</span>
+                <h1 className="text-5xl md:text-6xl font-black text-gray-900 dark:text-white mb-6">{t.academy.title}</h1>
                 <p className="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-                    Scegli la tua modalità di allenamento e affina le tue conoscenze.
+                    {t.academy.subtitle}
                 </p>
             </div>
 
@@ -113,7 +113,7 @@ const Academy: React.FC = () => {
                         onChange={(e) => setFilterCategory(e.target.value)}
                         className="w-full appearance-none px-6 py-4 bg-white dark:bg-gray-800 rounded-2xl border-2 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white font-bold outline-none focus:ring-4 focus:ring-brand-orange/20 transition-all cursor-pointer"
                     >
-                        {categories.map(c => <option key={c} value={c}>{c === 'All' ? 'Tutto il Database' : c}</option>)}
+                        {categories.map(c => <option key={c} value={c}>{c === 'All' ? t.academy.filterAll : c}</option>)}
                     </select>
                     <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">▼</div>
                 </div>
@@ -133,13 +133,13 @@ const Academy: React.FC = () => {
                             <div className="w-16 h-16 rounded-2xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 mb-6">
                                 <Layers size={32} />
                             </div>
-                            <h2 className="text-4xl font-black text-gray-900 dark:text-white mb-4">Flashcards</h2>
+                            <h2 className="text-4xl font-black text-gray-900 dark:text-white mb-4">{t.academy.flashcards.title}</h2>
                             <p className="text-gray-500 dark:text-gray-400 text-lg leading-relaxed">
-                                Memorizza ricette, ingredienti e bicchieri girando le carte.
+                                {t.academy.flashcards.desc}
                             </p>
                         </div>
                         <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400 font-bold">
-                            Inizia Sessione <ChevronRight size={20} />
+                            {t.academy.flashcards.start} <ChevronRight size={20} />
                         </div>
                     </div>
                 </button>
@@ -157,13 +157,13 @@ const Academy: React.FC = () => {
                             <div className="w-16 h-16 rounded-2xl bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center text-brand-orange mb-6">
                                 <HelpCircle size={32} />
                             </div>
-                            <h2 className="text-4xl font-black text-gray-900 dark:text-white mb-4">Speed Quiz</h2>
+                            <h2 className="text-4xl font-black text-gray-900 dark:text-white mb-4">{t.academy.quiz.title}</h2>
                             <p className="text-gray-500 dark:text-gray-400 text-lg leading-relaxed">
-                                Mettiti alla prova. Indovina gli ingredienti corretti per ogni drink.
+                                {t.academy.quiz.desc}
                             </p>
                         </div>
                         <div className="flex items-center gap-2 text-brand-orange font-bold">
-                            Inizia Quiz <ChevronRight size={20} />
+                            {t.academy.quiz.start} <ChevronRight size={20} />
                         </div>
                     </div>
                 </button>
