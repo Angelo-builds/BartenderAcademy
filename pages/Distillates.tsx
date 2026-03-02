@@ -113,10 +113,10 @@ const Distillates: React.FC = () => {
                     <Droplets size={14} /> {t.distillates.encyclopedia}
                 </span>
                 <h1 className="text-5xl md:text-7xl font-black text-white tracking-tight leading-none mb-4">
-                    {siteConfig.distillatesTitle || t.distillates.title}
+                    {(language === 'en' ? siteConfig.distillatesTitleEn : siteConfig.distillatesTitle) || t.distillates.title}
                 </h1>
                 <p className="text-gray-300 text-lg max-w-xl font-light">
-                    {siteConfig.distillatesSubtitle || t.distillates.subtitle}
+                    {(language === 'en' ? siteConfig.distillatesSubtitleEn : siteConfig.distillatesSubtitle) || t.distillates.subtitle}
                 </p>
              </div>
              {/* Decorative Element */}
@@ -129,7 +129,7 @@ const Distillates: React.FC = () => {
         {distillates.map((item) => (
             <Link 
                 key={item.id} 
-                to={`/distillates/${item.id}`} 
+                to={`/${language}/distillates/${item.id}`} 
                 className="group relative overflow-hidden rounded-[2.5rem] shadow-sm hover:shadow-2xl cursor-pointer h-[28rem] transition-all duration-500 hover:-translate-y-2 border border-transparent dark:border-gray-800"
             >
                 {isAdmin && (
