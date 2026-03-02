@@ -10,7 +10,7 @@ interface Props {
 }
 
 const CocktailCard: React.FC<Props> = ({ cocktail }) => {
-  const { isAdmin, t, favorites, toggleFavorite } = useAppStore();
+  const { isAdmin, t, favorites, toggleFavorite, language } = useAppStore();
   const navigate = useNavigate();
   
   const getSlug = (name: string) => {
@@ -48,7 +48,7 @@ const CocktailCard: React.FC<Props> = ({ cocktail }) => {
 
   const handleEdit = (e: React.MouseEvent) => {
       e.preventDefault(); e.stopPropagation();
-      navigate('/admin', { state: { editCocktail: cocktail } });
+      navigate(`/${language}/admin`, { state: { editCocktail: cocktail } });
   };
 
   const handleImageError = () => {
