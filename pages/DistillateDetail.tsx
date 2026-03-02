@@ -8,12 +8,12 @@ import SmartImage from '../components/SmartImage';
 
 const DistillateDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const { data } = useAppStore();
+  const { data, language } = useAppStore();
   
   const item = data.theory.find(t => t.id === id);
 
   if (!item) {
-      return <Navigate to="/distillates" replace />;
+      return <Navigate to={`/${language}/distillates`} replace />;
   }
 
   return (
@@ -30,7 +30,7 @@ const DistillateDetail: React.FC = () => {
                 />
                 <div className="absolute inset-0 bg-black/30"></div>
                 
-                <Link to="/distillates" className="absolute top-6 left-6 p-3 bg-white/20 backdrop-blur-md hover:bg-white/40 rounded-full text-white transition-all z-10">
+                <Link to={`/${language}/distillates`} className="absolute top-6 left-6 p-3 bg-white/20 backdrop-blur-md hover:bg-white/40 rounded-full text-white transition-all z-10">
                     <ArrowLeft size={24} />
                 </Link>
 
@@ -67,7 +67,7 @@ const DistillateDetail: React.FC = () => {
                             Mastering {item.title} is essential for creating balanced cocktails. 
                             Check out our recipe section to find drinks using this spirit.
                         </p>
-                        <Link to="/cocktails" className="inline-block mt-4 text-brand-orange font-bold text-sm hover:underline">
+                        <Link to={`/${language}/cocktails`} className="inline-block mt-4 text-brand-orange font-bold text-sm hover:underline">
                             Browse Cocktails →
                         </Link>
                     </div>
