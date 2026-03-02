@@ -118,10 +118,10 @@ const Theory: React.FC = () => {
                  {t.home.school}
               </span>
               <h1 className="text-5xl md:text-6xl font-black text-white tracking-tight mb-6 leading-tight">
-                {siteConfig.theoryTitle || t.theory.title}
+                {(language === 'en' ? siteConfig.theoryTitleEn : siteConfig.theoryTitle) || t.theory.title}
               </h1>
               <p className="text-xl text-gray-300 font-light leading-relaxed">
-                {siteConfig.theorySubtitle || t.theory.subtitle}
+                {(language === 'en' ? siteConfig.theorySubtitleEn : siteConfig.theorySubtitle) || t.theory.subtitle}
               </p>
           </div>
       </div>
