@@ -231,10 +231,14 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
             mergedConfig.homeQuote = configData.homeQuote || mergedConfig.homeQuote;
             
             mergedConfig.theoryTitle = configData.theoryTitle || mergedConfig.theoryTitle;
+            mergedConfig.theoryTitleEn = configData.theoryTitleEn || mergedConfig.theoryTitleEn;
             mergedConfig.theorySubtitle = configData.theorySubtitle || mergedConfig.theorySubtitle;
+            mergedConfig.theorySubtitleEn = configData.theorySubtitleEn || mergedConfig.theorySubtitleEn;
             
             mergedConfig.distillatesTitle = configData.distillatesTitle || mergedConfig.distillatesTitle;
+            mergedConfig.distillatesTitleEn = configData.distillatesTitleEn || mergedConfig.distillatesTitleEn;
             mergedConfig.distillatesSubtitle = configData.distillatesSubtitle || mergedConfig.distillatesSubtitle;
+            mergedConfig.distillatesSubtitleEn = configData.distillatesSubtitleEn || mergedConfig.distillatesSubtitleEn;
 
             // Images
             mergedConfig.homeHeroImage = configData.homeHeroImage || mergedConfig.homeHeroImage;
