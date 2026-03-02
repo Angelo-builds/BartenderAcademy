@@ -15,7 +15,8 @@ const Admin: React.FC = () => {
       updateSiteConfig,
       uploadLocalDataToDb,
       uploadImage,
-      t 
+      t,
+      language
   } = useAppStore();
   
   const [email, setEmail] = useState('');
@@ -229,6 +230,7 @@ const Admin: React.FC = () => {
       if (selectedCertsForShare.length === 0) return;
       const name = `Link generato il ${new Date().toLocaleDateString()}`;
       const slug = await createShareLink(selectedCertsForShare, shareExpiration ? shareExpiration : null, name);
+      // UPDATED: Include language in shared link
       const url = `${window.location.origin}/${language || 'it'}/shared/${slug}`;
       setGeneratedLink(url);
   };
