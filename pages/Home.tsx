@@ -118,10 +118,10 @@ const Home: React.FC = () => {
             </p>
              <div className="flex flex-col sm:flex-row gap-4 z-20 w-full justify-center">
                 {/* UPDATED: dark:bg-night-blue dark:hover:bg-blue-800 */}
-                <Link to="/cocktails" className="px-8 py-4 bg-brand-orange dark:bg-night-blue text-white rounded-full font-bold text-lg hover:bg-brand-red dark:hover:bg-blue-800 transition-all shadow-lg shadow-brand-orange/40 dark:shadow-blue-900/40 flex items-center justify-center gap-2 transform hover:scale-105 active:scale-95 duration-300 min-w-[200px]">
+                <Link to={`/${language}/cocktails`} className="px-8 py-4 bg-brand-orange dark:bg-night-blue text-white rounded-full font-bold text-lg hover:bg-brand-red dark:hover:bg-blue-800 transition-all shadow-lg shadow-brand-orange/40 dark:shadow-blue-900/40 flex items-center justify-center gap-2 transform hover:scale-105 active:scale-95 duration-300 min-w-[200px]">
                     {t.home.exploreRecipes} <ArrowRight size={20} />
                 </Link>
-                <Link to="/theory" className="px-8 py-4 bg-white text-black rounded-full font-bold text-lg hover:bg-gray-100 transition-colors shadow-lg flex items-center justify-center transform hover:scale-105 active:scale-95 duration-300 min-w-[200px]">
+                <Link to={`/${language}/theory`} className="px-8 py-4 bg-white text-black rounded-full font-bold text-lg hover:bg-gray-100 transition-colors shadow-lg flex items-center justify-center transform hover:scale-105 active:scale-95 duration-300 min-w-[200px]">
                     {t.home.studyTheory}
                 </Link>
             </div>
@@ -151,7 +151,7 @@ const Home: React.FC = () => {
               {/* Featured Cocktail (Large Card) */}
               {featuredCocktail && (
                   <div className="md:col-span-2 relative h-96 group overflow-hidden rounded-3xl cursor-pointer">
-                      <Link to="/cocktails">
+                      <Link to={`/${language}/cocktails`}>
                         <SmartImage 
                             src={featuredCocktail.image} 
                             alt={featuredCocktail.name} 
@@ -176,7 +176,7 @@ const Home: React.FC = () => {
               )}
 
               {/* Distillates Card */}
-              <Link to="/distillates" className="md:col-span-1 bg-gray-900 dark:bg-gray-800 rounded-3xl p-8 flex flex-col justify-between hover:bg-gray-800 dark:hover:bg-gray-700 transition-colors group">
+              <Link to={`/${language}/distillates`} className="md:col-span-1 bg-gray-900 dark:bg-gray-800 rounded-3xl p-8 flex flex-col justify-between hover:bg-gray-800 dark:hover:bg-gray-700 transition-colors group">
                   <div className="p-4 bg-blue-500/20 rounded-2xl w-fit text-blue-500 group-hover:bg-blue-500 group-hover:text-white transition-colors">
                       <FlaskConical size={32} />
                   </div>
@@ -187,7 +187,7 @@ const Home: React.FC = () => {
               </Link>
 
               {/* Theory Card */}
-              <Link to="/theory" className="md:col-span-1 bg-gray-100 dark:bg-gray-900 rounded-3xl p-8 flex flex-col justify-between hover:bg-white dark:hover:bg-gray-800 transition-all shadow-sm hover:shadow-xl group border border-gray-200 dark:border-gray-800">
+              <Link to={`/${language}/theory`} className="md:col-span-1 bg-gray-100 dark:bg-gray-900 rounded-3xl p-8 flex flex-col justify-between hover:bg-white dark:hover:bg-gray-800 transition-all shadow-sm hover:shadow-xl group border border-gray-200 dark:border-gray-800">
                    {/* UPDATED: dark:bg-night-azure/10 dark:text-night-azure */}
                    <div className="p-4 bg-brand-orange/10 dark:bg-night-azure/10 rounded-2xl w-fit text-brand-orange dark:text-night-azure group-hover:bg-brand-orange dark:group-hover:bg-night-azure group-hover:text-white transition-colors">
                       <BookOpen size={32} />
@@ -199,7 +199,7 @@ const Home: React.FC = () => {
               </Link>
 
               {/* Admin Card (Wide) */}
-              <Link to="/admin" className="md:col-span-2 bg-black dark:bg-white text-white dark:text-black rounded-3xl p-8 flex items-center justify-between hover:scale-[1.01] transition-transform">
+              <Link to={`/${language}/admin`} className="md:col-span-2 bg-black dark:bg-white text-white dark:text-black rounded-3xl p-8 flex items-center justify-between hover:scale-[1.01] transition-transform">
                   <div>
                       <h3 className="text-2xl font-bold mb-2">{t.home.cards.admin.title}</h3>
                       <p className="text-sm opacity-70 max-w-md">{t.home.cards.admin.desc}</p>
