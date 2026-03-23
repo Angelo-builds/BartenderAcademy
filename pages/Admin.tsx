@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { useAppStore } from '../store';
+import { useAppStore, generateUUID } from '../store';
 import { Cocktail, TheorySection, Certificate, Ingredient, SiteConfig } from '../types';
 import { X, Edit, Trash2, LayoutList, BookOpen, Award, Share2, Copy, Check, Lock, ArrowRight, ShieldCheck, FileJson, Upload, Image as ImageIcon, Mail, Loader, FileText, Plus, Minus, Save, RotateCcw, Download, FileUp, AlertTriangle, Settings, Database, CloudUpload } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
@@ -161,7 +161,7 @@ const Admin: React.FC = () => {
         if (theoryForm.id) {
              await updateTheory(payload);
         } else {
-             await addTheory({ ...payload, id: crypto.randomUUID() });
+             await addTheory({ ...payload, id: generateUUID() });
         }
         setViewMode('list'); setTheoryForm(emptyTheory);
         showStatus("Sezione salvata!");
@@ -176,7 +176,7 @@ const Admin: React.FC = () => {
         if (certForm.id) {
              await updateCertificate(payload);
         } else {
-             await addCertificate({ ...payload, id: crypto.randomUUID() });
+             await addCertificate({ ...payload, id: generateUUID() });
         }
         setViewMode('list'); setCertForm(emptyCert);
         showStatus("Certificato salvato!");
