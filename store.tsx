@@ -52,6 +52,18 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 // Helper to check if ID is a legacy local string (short) or a DB UUID (long)
 const isLocalId = (id: string) => id.length < 30;
 
+// Fallback for crypto.randomUUID
+export const generateUUID = () => {
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+    return crypto.randomUUID();
+  }
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+    const r = Math.random() * 16 | 0;
+    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+};
+
 export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   // Theme State - Persisted
   const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
@@ -423,7 +435,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   
   const updateCocktail = async (cocktail: Cocktail) => {
     if (isLocalId(cocktail.id)) {
-        const newId = crypto.randomUUID();
+        const newId = generateUUID();
         const newCocktail = { ...cocktail, id: newId };
         
         setData(prev => ({
@@ -456,7 +468,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   
   const updateTheory = async (theory: TheorySection) => {
     if (isLocalId(theory.id)) {
-        const newId = crypto.randomUUID();
+        const newId = generateUUID();
         const newTheory = { ...theory, id: newId };
         setData(prev => ({ ...prev, theory: prev.theory.map(t => t.id === theory.id ? newTheory : t) }));
         const { error } = await supabase.from('theory').insert(newTheory);
