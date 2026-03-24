@@ -8,7 +8,7 @@ import { useLocation } from 'react-router-dom';
 const Admin: React.FC = () => {
   const { 
       isAdmin, login, logout, 
-      addCocktail, updateCocktail, deleteCocktail, 
+      addCocktail, updateCocktail, deleteCocktail, bulkUpdateCocktails,
       data, 
       addTheory, updateTheory, deleteTheory,
       addCertificate, updateCertificate, deleteCertificate, createShareLink,
@@ -243,11 +243,68 @@ const Admin: React.FC = () => {
       (acc[cert.section] = acc[cert.section] || []).push(cert);
       return acc;
   }, {} as Record<string, Certificate[]>);
-  // ... (Bulk validation functions remain the same)
-  const validateBulkData = (items: any[]) => []; // Placeholder for the existing logic
-  const handleBulkSave = async () => {}; // Placeholder for existing logic
-  const handleDownloadJSON = () => {}; // Placeholder
-  const handleUploadJSON = (e: any) => {}; // Placeholder
+  const validateBulkData = (items: any[]) => {
+      const errors: string[] = [];
+      if (!Array.isArray(items)) {
+          errors.push('Il JSON deve essere un array di oggetti.');
+          return errors;
+      }
+      items.forEach((item, index) => {
+          if (!item.name) errors.push(`Elemento ${index}: nome mancante`);
+          if (!item.category) errors.push(`Elemento ${index}: categoria mancante`);
+          if (!item.glass) errors.push(`Elemento ${index}: bicchiere mancante`);
+          if (!item.method) errors.push(`Elemento ${index}: metodo mancante`);
+          if (!item.ingredients || !Array.isArray(item.ingredients)) errors.push(`Elemento ${index}: ingredienti mancanti o non validi`);
+      });
+      return errors;
+  };
+
+  const handleBulkSave = async () => {
+      try {
+          const parsed = JSON.parse(bulkJson);
+          const errors = validateBulkData(parsed);
+          
+          if (errors.length > 0) {
+              setBulkErrors(errors);
+              return;
+          }
+
+          setIsLoading(true);
+          await bulkUpdateCocktails(parsed);
+          showStatus("Dati salvati con successo!");
+          setViewMode('list');
+      } catch (e: any) {
+          setBulkErrors([`JSON non valido: ${e.message}`]);
+      } finally {
+          setIsLoading(false);
+      }
+  };
+
+  const handleDownloadJSON = () => {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data.cocktails, null, 2));
+      const downloadAnchorNode = document.createElement('a');
+      downloadAnchorNode.setAttribute("href", dataStr);
+      downloadAnchorNode.setAttribute("download", "cocktails.json");
+      document.body.appendChild(downloadAnchorNode);
+      downloadAnchorNode.click();
+      downloadAnchorNode.remove();
+  };
+
+  const handleUploadJSON = (e: any) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (event) => {
+          try {
+              const json = event.target?.result as string;
+              setBulkJson(json);
+              setBulkErrors([]);
+          } catch (err: any) {
+              setBulkErrors([`Errore lettura file: ${err.message}`]);
+          }
+      };
+      reader.readAsText(file);
+  };
 
 
   if (!isAdmin) {
@@ -471,7 +528,25 @@ const Admin: React.FC = () => {
             {/* BULK JSON VIEW & EDIT FORMS (Remaining logic preserved) */}
              {viewMode === 'bulk' && (
                 <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] shadow-lg p-8 animate-slideDown">
-                    {/* ... Bulk content ... */}
+                    <div className="flex justify-between items-center mb-6">
+                        <h2 className="text-2xl font-bold dark:text-white">Modifica Massiva JSON</h2>
+                        <div className="flex gap-2">
+                            <button onClick={handleDownloadJSON} className="px-4 py-2 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs font-bold hover:bg-gray-200 dark:hover:bg-gray-700 flex items-center gap-2">
+                                Scarica JSON
+                            </button>
+                            <label className="px-4 py-2 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs font-bold hover:bg-gray-200 dark:hover:bg-gray-700 flex items-center gap-2 cursor-pointer">
+                                Carica JSON
+                                <input type="file" accept=".json" onChange={handleUploadJSON} className="hidden" />
+                            </label>
+                        </div>
+                    </div>
+                    {bulkErrors.length > 0 && (
+                        <div className="mb-4 p-4 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-xl text-sm font-medium border border-red-100 dark:border-red-900/50">
+                            <ul className="list-disc pl-5">
+                                {bulkErrors.map((err, i) => <li key={i}>{err}</li>)}
+                            </ul>
+                        </div>
+                    )}
                      <textarea 
                         className={`w-full h-[450px] font-mono text-sm p-4 bg-gray-50 dark:bg-black rounded-xl border outline-none focus:border-brand-orange dark:focus:border-night-azure text-gray-800 dark:text-gray-300 resize-none ${bulkErrors.length > 0 ? 'border-red-300 dark:border-red-800' : 'border-gray-200 dark:border-gray-800'}`}
                         value={bulkJson}
