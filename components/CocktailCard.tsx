@@ -162,21 +162,22 @@ const CocktailCard: React.FC<Props> = ({ cocktail }) => {
 
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-90 z-20 pointer-events-none"></div>
           
-          {cocktail.status === 'coming_soon' && <div className="absolute top-4 right-4 bg-yellow-400 text-black text-xs font-bold px-3 py-1 rounded-full z-30 shadow-lg">{t.common.comingSoon}</div>}
+          {cocktail.status === 'coming_soon' && <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-yellow-400 text-black text-xs font-bold px-3 py-1 rounded-full z-30 shadow-lg">{t.common.comingSoon}</div>}
           
           {/* Action Buttons */}
           <div className="absolute top-4 left-4 z-40 flex gap-2">
             {isAdmin && (
-                <button onClick={handleEdit} className="p-2.5 bg-white/20 backdrop-blur-md text-white rounded-full hover:bg-white/40 transition-colors border border-white/20"><Pencil size={16} /></button>
+                <button onClick={handleEdit} className="p-2.5 bg-black/30 backdrop-blur-md text-white rounded-full hover:bg-black/50 transition-colors border border-white/20"><Pencil size={16} /></button>
             )}
           </div>
           
           {/* Favorite Button */}
           <button 
-            onClick={() => toggleFavorite(cocktail.id)}
-            className="absolute top-4 right-4 z-40 p-2.5 rounded-full transition-all shadow-lg border border-white/20 hover:scale-110 bg-white/20 backdrop-blur-md"
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleFavorite(cocktail.id); }}
+            className={`absolute top-4 right-4 z-40 p-2.5 rounded-full transition-all duration-300 shadow-lg border ${isFav ? 'bg-white/90 border-white shadow-red-500/20' : 'bg-black/30 backdrop-blur-md border-white/20 hover:bg-black/50'} hover:scale-110`}
+            aria-label={isFav ? "Rimuovi dai preferiti" : "Aggiungi ai preferiti"}
           >
-              <Heart size={18} className={isFav ? "fill-red-500 text-red-500" : "text-white"} />
+              <Heart size={18} className={`transition-colors duration-300 ${isFav ? "fill-red-500 text-red-500" : "text-white"}`} />
           </button>
 
 
