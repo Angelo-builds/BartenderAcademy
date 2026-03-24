@@ -27,6 +27,7 @@ interface AppContextType {
   addCocktail: (cocktail: Cocktail) => Promise<void>;
   updateCocktail: (cocktail: Cocktail) => Promise<void>;
   deleteCocktail: (id: string) => Promise<void>;
+  bulkUpdateCocktails: (cocktails: Cocktail[]) => Promise<void>;
   addTheory: (theory: TheorySection) => Promise<void>;
   updateTheory: (theory: TheorySection) => Promise<void>;
   deleteTheory: (id: string) => Promise<void>;
@@ -54,9 +55,20 @@ const isLocalId = (id: string) => id.length < 30;
 
 // Fallback for crypto.randomUUID
 export const generateUUID = () => {
-  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
-    return crypto.randomUUID();
+  try {
+    // Try window.crypto first (most common in browsers)
+    if (typeof window !== 'undefined' && window.crypto && typeof window.crypto.randomUUID === 'function') {
+      return window.crypto.randomUUID();
+    }
+    // Try global crypto (Node.js or some browser environments)
+    if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+      return crypto.randomUUID();
+    }
+  } catch (e) {
+    console.warn('Native randomUUID failed, using fallback:', e);
   }
+
+  // Fallback: Math.random based UUID v4
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
     const r = Math.random() * 16 | 0;
     const v = c === 'x' ? r : (r & 0x3 | 0x8);
@@ -459,6 +471,39 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
   };
 
+  const bulkUpdateCocktails = async (cocktails: Cocktail[]) => {
+    // Ensure all items have an ID
+    const toUpsert = cocktails.map(c => ({
+        ...c,
+        id: c.id || generateUUID()
+    }));
+    
+    // Find IDs to delete (exist in current data but not in new data)
+    const newIds = toUpsert.map(c => c.id);
+    const toDelete = data.cocktails.filter(c => !newIds.includes(c.id)).map(c => c.id);
+    
+    // Update local state immediately
+    setData(prev => ({ ...prev, cocktails: toUpsert }));
+    
+    // Upsert to Supabase
+    if (toUpsert.length > 0) {
+        const { error: upsertError } = await supabase.from('cocktails').upsert(toUpsert);
+        if (upsertError) {
+            console.error("Bulk Update Error:", upsertError);
+            throw new Error(upsertError.message);
+        }
+    }
+    
+    // Delete from Supabase
+    if (toDelete.length > 0) {
+        const { error: deleteError } = await supabase.from('cocktails').delete().in('id', toDelete);
+        if (deleteError) {
+            console.error("Bulk Delete Error:", deleteError);
+            throw new Error(deleteError.message);
+        }
+    }
+  };
+
   // --- THEORY ---
   const addTheory = async (theory: TheorySection) => {
     setData(prev => ({ ...prev, theory: [...prev.theory, theory] }));
@@ -528,7 +573,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       data, isLoading, language, setLanguage, t, 
       user, isAdmin: !!user, login, logout,
       favorites, toggleFavorite,
-      addCocktail, updateCocktail, deleteCocktail,
+      addCocktail, updateCocktail, deleteCocktail, bulkUpdateCocktails,
       addTheory, updateTheory, deleteTheory,
       addCertificate, updateCertificate, deleteCertificate,
       createShareLink, getSharedLink, updateSiteConfig,
