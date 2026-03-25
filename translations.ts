@@ -46,7 +46,9 @@ export const translations = {
       filters: {
         allEras: 'Tutte le Classificazioni',
         allCategories: 'Tutte le Categorie'
-      }
+      },
+      results: 'Drink trovati:',
+      of: 'su'
     },
     theory: {
       title: 'Manuale Operativo',
@@ -293,7 +295,9 @@ export const translations = {
       filters: {
         allEras: 'All Classifications',
         allCategories: 'All Categories'
-      }
+      },
+      results: 'Drinks found:',
+      of: 'of'
     },
     theory: {
       title: 'Operations Manual',
