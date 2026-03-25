@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { RefreshCw, Timer, Droplets, GlassWater, Activity, Calculator } from 'lucide-react';
+import { useAppStore } from '../store';
 
 const Tools: React.FC = () => {
     const { t } = useAppStore();
