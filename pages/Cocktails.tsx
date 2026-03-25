@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useAppStore } from '../store';
 import CocktailCard from '../components/CocktailCard';
 import SkeletonCard from '../components/SkeletonCard';
@@ -13,21 +13,23 @@ const Cocktails: React.FC = () => {
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
 
   // Basic filtering logic
-  const filteredCocktails = data.cocktails.filter(c => {
-    const matchesSearch = c.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                          c.ingredients.some(i => i.name.toLowerCase().includes(searchTerm.toLowerCase()));
-    const matchesEra = filterEra === 'All' || c.era === filterEra;
-    const matchesCategory = filterCategory === 'All' || c.category === filterCategory;
-    const matchesFav = showFavoritesOnly ? favorites.includes(c.id) : true;
-    
-    // Visibility: Admins can see 'draft' status items, regular users cannot.
-    const isVisible = isAdmin || c.status !== 'draft';
-    
-    return matchesSearch && matchesEra && matchesCategory && matchesFav && isVisible;
-  });
+  const filteredCocktails = useMemo(() => {
+    return data.cocktails.filter(c => {
+      const matchesSearch = c.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                            c.ingredients.some(i => i.name.toLowerCase().includes(searchTerm.toLowerCase()));
+      const matchesEra = filterEra === 'All' || c.era === filterEra;
+      const matchesCategory = filterCategory === 'All' || c.category === filterCategory;
+      const matchesFav = showFavoritesOnly ? favorites.includes(c.id) : true;
+      
+      // Visibility: Admins can see 'draft' status items, regular users cannot.
+      const isVisible = isAdmin || c.status !== 'draft';
+      
+      return matchesSearch && matchesEra && matchesCategory && matchesFav && isVisible;
+    });
+  }, [data.cocktails, searchTerm, filterEra, filterCategory, showFavoritesOnly, favorites, isAdmin]);
 
-  const eras = ['All', ...Array.from(new Set(data.cocktails.map(c => c.era)))].sort();
-  const categories = ['All', ...Array.from(new Set(data.cocktails.map(c => c.category)))].sort();
+  const eras = useMemo(() => ['All', ...Array.from(new Set(data.cocktails.map(c => c.era)))].sort(), [data.cocktails]);
+  const categories = useMemo(() => ['All', ...Array.from(new Set(data.cocktails.map(c => c.category)))].sort(), [data.cocktails]);
 
   return (
     <div className="space-y-8">
@@ -83,6 +85,16 @@ const Cocktails: React.FC = () => {
                         </select>
                          <Filter size={16} className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none" />
                     </div>
+                </div>
+            </div>
+            
+            {/* Results Counter */}
+            <div className="mt-4 pt-3 border-t border-gray-100 dark:border-gray-800 flex items-center text-sm text-gray-500 dark:text-gray-400">
+                <div className="flex items-center gap-1.5">
+                    <span>{t.cocktails.results}</span>
+                    <span className="font-semibold text-gray-900 dark:text-white">{filteredCocktails.length}</span>
+                    <span>{t.cocktails.of}</span>
+                    <span className="font-semibold text-gray-900 dark:text-white">{data.cocktails.length}</span>
                 </div>
             </div>
         </div>
