@@ -24,6 +24,10 @@ const CocktailCard: React.FC<Props> = ({ cocktail }) => {
   };
 
   const [imgSrc, setImgSrc] = useState<string>(() => {
+      // If the cocktail has an explicit image URL (like from Unsplash), use it immediately
+      if (cocktail.image && cocktail.image.startsWith('http')) {
+          return cocktail.image;
+      }
       const slug = getSlug(cocktail.name);
       return `/images/${slug}.jpg`;
   });
@@ -31,7 +35,7 @@ const CocktailCard: React.FC<Props> = ({ cocktail }) => {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
   
-  // 0: local .jpg, 1: local .jpeg, 2: local .png, 3: DB URL, 4: Error
+  // 0: initial, 1: local .jpeg, 2: local .png, 3: Error
   const [loadAttempt, setLoadAttempt] = useState(0);
 
   const isFav = favorites.includes(cocktail.id);
@@ -42,8 +46,12 @@ const CocktailCard: React.FC<Props> = ({ cocktail }) => {
       setImageLoaded(false);
       setImageError(false);
       
-      const slug = getSlug(cocktail.name);
-      setImgSrc(`/images/${slug}.jpg`);
+      if (cocktail.image && cocktail.image.startsWith('http')) {
+          setImgSrc(cocktail.image);
+      } else {
+          const slug = getSlug(cocktail.name);
+          setImgSrc(`/images/${slug}.jpg`);
+      }
   }, [cocktail.name, cocktail.image]);
 
   const handleEdit = (e: React.MouseEvent) => {
@@ -52,6 +60,12 @@ const CocktailCard: React.FC<Props> = ({ cocktail }) => {
   };
 
   const handleImageError = () => {
+      // If we were trying an external URL and it failed, go straight to error
+      if (imgSrc.startsWith('http')) {
+          setImageError(true);
+          return;
+      }
+
       const slug = getSlug(cocktail.name);
       
       if (loadAttempt === 0) {
@@ -62,19 +76,9 @@ const CocktailCard: React.FC<Props> = ({ cocktail }) => {
           // Try .png
           setLoadAttempt(2);
           setImgSrc(`/images/${slug}.png`);
-      } else if (loadAttempt === 2) {
-          // Try DB Image (if it exists and is not the same as what we just tried)
-          // Note: If cocktail.image IS one of the local paths, we skip to error to avoid loop
-          if (cocktail.image && !cocktail.image.includes(`/images/${slug}`)) {
-              setLoadAttempt(3);
-              setImgSrc(cocktail.image);
-          } else {
-              setLoadAttempt(4);
-              setImageError(true);
-          }
       } else {
           // Give up
-          setLoadAttempt(4);
+          setLoadAttempt(3);
           setImageError(true);
       }
   };
@@ -199,4 +203,4 @@ const CocktailCard: React.FC<Props> = ({ cocktail }) => {
   );
 };
 
-export default CocktailCard;
+export default React.memo(CocktailCard);
