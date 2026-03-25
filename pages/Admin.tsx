@@ -249,7 +249,13 @@ const Admin: React.FC = () => {
           errors.push('Il JSON deve essere un array di oggetti.');
           return errors;
       }
+      
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
       items.forEach((item, index) => {
+          if (item.id && !uuidRegex.test(item.id)) {
+              errors.push(`Elemento ${index} (${item.name || 'Sconosciuto'}): L'ID non è valido. Se stai aggiungendo un nuovo cocktail, elimina completamente la riga "id" dal JSON.`);
+          }
           if (!item.name) errors.push(`Elemento ${index}: nome mancante`);
           if (!item.category) errors.push(`Elemento ${index}: categoria mancante`);
           if (!item.glass) errors.push(`Elemento ${index}: bicchiere mancante`);
