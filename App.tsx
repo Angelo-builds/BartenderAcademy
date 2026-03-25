@@ -1,20 +1,22 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation, useParams, useNavigate, Outlet } from 'react-router-dom';
 import Navbar from './components/Navbar';
-import Home from './pages/Home';
-import Theory from './pages/Theory';
-import Cocktails from './pages/Cocktails';
-import Distillates from './pages/Distillates';
-import DistillateDetail from './pages/DistillateDetail';
-import Admin from './pages/Admin';
-import Academy from './pages/Academy';
-import Lab from './pages/Lab';
-import Tools from './pages/Tools';
-import ComingSoon from './pages/ComingSoon';
-import SharedCertificates from './pages/SharedCertificates';
 import Chatbot from './components/Chatbot';
 import { AppProvider, useAppStore } from './store';
+
+// Lazy load pages for better performance
+const Home = lazy(() => import('./pages/Home'));
+const Theory = lazy(() => import('./pages/Theory'));
+const Cocktails = lazy(() => import('./pages/Cocktails'));
+const Distillates = lazy(() => import('./pages/Distillates'));
+const DistillateDetail = lazy(() => import('./pages/DistillateDetail'));
+const Admin = lazy(() => import('./pages/Admin'));
+const Academy = lazy(() => import('./pages/Academy'));
+const Lab = lazy(() => import('./pages/Lab'));
+const Tools = lazy(() => import('./pages/Tools'));
+const ComingSoon = lazy(() => import('./pages/ComingSoon'));
+const SharedCertificates = lazy(() => import('./pages/SharedCertificates'));
 
 const LanguageWrapper: React.FC = () => {
   const { lang } = useParams<{ lang: string }>();
@@ -72,25 +74,27 @@ const MainLayout: React.FC = () => {
 
 const AppRoutes: React.FC = () => {
   return (
-    <Routes>
-      <Route path="/" element={<Navigate to="/it" replace />} />
-      <Route path="/:lang" element={<LanguageWrapper />}>
-        <Route element={<MainLayout />}>
-          <Route index element={<Home />} />
-          <Route path="theory" element={<Theory />} />
-          <Route path="cocktails" element={<Cocktails />} />
-          <Route path="distillates" element={<Distillates />} />
-          <Route path="distillates/:id" element={<DistillateDetail />} />
-          <Route path="academy" element={<Academy />} />
-          <Route path="lab" element={<Lab />} />
-          <Route path="tools" element={<Tools />} />
-          <Route path="admin" element={<Admin />} />
-          <Route path="coming-soon" element={<ComingSoon />} />
-          <Route path="shared/:id" element={<SharedCertificates />} />
-          <Route path="*" element={<Navigate to="." replace />} />
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-black"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-orange"></div></div>}>
+      <Routes>
+        <Route path="/" element={<Navigate to="/it" replace />} />
+        <Route path="/:lang" element={<LanguageWrapper />}>
+          <Route element={<MainLayout />}>
+            <Route index element={<Home />} />
+            <Route path="theory" element={<Theory />} />
+            <Route path="cocktails" element={<Cocktails />} />
+            <Route path="distillates" element={<Distillates />} />
+            <Route path="distillates/:id" element={<DistillateDetail />} />
+            <Route path="academy" element={<Academy />} />
+            <Route path="lab" element={<Lab />} />
+            <Route path="tools" element={<Tools />} />
+            <Route path="admin" element={<Admin />} />
+            <Route path="coming-soon" element={<ComingSoon />} />
+            <Route path="shared/:id" element={<SharedCertificates />} />
+            <Route path="*" element={<Navigate to="." replace />} />
+          </Route>
         </Route>
-      </Route>
-    </Routes>
+      </Routes>
+    </Suspense>
   );
 };
 
